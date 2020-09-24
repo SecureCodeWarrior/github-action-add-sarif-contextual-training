@@ -1,5 +1,5 @@
 name: 'Add Secure Code Warrior contextual training to SARIF'
-description: 'GitHub Action for adding Secure Code Warrior contextual application security training material to SARIF files based on CWE references'
+description: 'GitHub Action for adding contextual application security training material to SARIF files based on CWE references'
 branding:
   icon: 'shield'  
   color: 'orange'
