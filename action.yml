@@ -1,5 +1,5 @@
-name: 'Test SCW'
-description: 'SCW testing ground'
+name: 'Add Secure Code Warrior contextual training to SARIF'
+description: 'GitHub Action for adding Secure Code Warrior contextual application security training material to SARIF files'
 branding:
   icon: 'shield'  
   color: 'orange'
@@ -11,7 +11,7 @@ inputs:
   outputSarifFile:
     description: 'relative destination location for processed SARIF file'
     required: true
-    default: './results.sarif'
+    default: './results.processed.sarif'
 runs:
   using: 'node12'
   main: 'dist/index.js'
