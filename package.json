@@ -1,0 +1,40 @@
+{
+  "name": "github-action-add-sarif-contextual-training",
+  "version": "1.0.0",
+  "description": "GitHub Action for adding contextual training material to SARIF files",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
+    "test": "jest",
+    "all": "npm run lint && npm run prepare && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SecureCodeWarrior/github-action-add-sarif-contextual-training.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "JavaScript",
+    "Security",
+    "AppSec",
+    "Training",
+    "SARIF"
+  ],
+  "author": "Secure Code Warrior",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SecureCodeWarrior/github-action-add-sarif-contextual-training/issues"
+  },
+  "homepage": "https://github.com/SecureCodeWarrior/github-action-add-sarif-contextual-training#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.5",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.24.0",
+    "eslint": "^7.4.0",
+    "jest": "^26.1.0"
+  }
+}

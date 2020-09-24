@@ -1,0 +1,17 @@
+name: 'Test SCW'
+description: 'SCW testing ground'
+branding:
+  icon: 'shield'  
+  color: 'orange'
+inputs:
+  inputSarifFile:
+    description: 'relative location of SARIF file to process'
+    required: true
+    default: './results.sarif'
+  outputSarifFile:
+    description: 'relative destination location for processed SARIF file'
+    required: true
+    default: './results.sarif'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

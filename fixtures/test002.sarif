@@ -1,0 +1,102 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Tool Name 7",
+          "rules": [
+            {
+              "id": "TEST01",
+              "name": "Test 01 rule name",
+              "messageStrings": {
+                "default": {
+                  "text": "This is the message text. It might be very long."
+                }
+              },
+              "shortDescription": {
+                "text": "Failed to release dynamic memory, but not really because this is CWE 89. Yes really."
+              },
+              "fullDescription": {
+                "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
+              },
+              "help": {
+                "text": "some help text"
+              }
+            },
+            {
+              "id": "TEST02",
+              "name": "Test 02 rule name",
+              "messageStrings": {
+                "default": {
+                  "text": "aaa"
+                }
+              },
+              "shortDescription": {
+                "text": "blah blah\na there is a cWe-352 vulnerability\nhow about that"
+              },
+              "fullDescription": {
+                "text": "something something cwe89 something CWE: 79 and\nsomething else cwe-----352 again"
+              },
+              "help": {
+                "text": "Some text here some text here",
+                "markdown": "# A Heading\n\nSome text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here\n\n## A Smaller Heading\n\nMore text here more text here more text here more text here more text here more text here CWE_94 more text here more text here"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TEST01",
+          "level": "error",
+          "message": {
+            "text": "Result text 003. This result does not have a rule associated."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.js"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 3,
+                  "endColumn": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "39fa2ee980eb94b2:1"
+          }
+        },
+        {
+          "ruleId": "TEST02",
+          "level": "warning",
+          "message": {
+            "text": "more different text."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.js"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 5,
+                  "endColumn": 8
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "39fa2ee98bebd4d0:1"
+          }
+        }
+      ]
+    }
+  ]
+}
