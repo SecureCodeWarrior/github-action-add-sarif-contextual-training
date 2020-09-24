@@ -22,5 +22,5 @@ jobs:
     - uses: actions/checkout@v2
     - uses: ./
       with:
-        inputSarifFile: test.sarif
-        outputSarifFile: test.out.sarif
+        inputSarifFile: ./fixtures/test002.sarif
+        outputSarifFile: ./fixtures/test002.out.sarif

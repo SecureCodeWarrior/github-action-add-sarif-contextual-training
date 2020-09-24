@@ -2276,6 +2276,10 @@ async function process(run) {
         for (const rule of run.tool.driver.rules) {
             let ruleText = '';
 
+            if (rule.id) ruleText += rule.id;
+
+            if (rule.name) ruleText += rule.name;
+
             if (rule.message) ruleText += textObjectProcessor.extractText(rule.message);
 
             if (rule.messageStrings) {
