@@ -63,6 +63,7 @@ async function run() {
 
         // load SARIF file from input location
         const sarif = await sarifLoader.load(inFile);
+        core.debug(JSON.stringify(sarif, null, 4));
 
         // process each run
         if (sarif && sarif.runs) {
