@@ -7,6 +7,7 @@ function search(text) {
     let textMatch = regex.exec(text);
     while (textMatch !== null) {
         if (textMatch) matches.push({
+            displayReferenceType: 'CWE',
             referenceType: 'cwe',
             referenceId: textMatch[1],
             fullMatchedText: textMatch[0]
