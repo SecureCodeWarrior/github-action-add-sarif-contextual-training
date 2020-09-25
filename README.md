@@ -38,3 +38,13 @@ Currently supports adding training material based on CWE references included in 
         with:
           sarif_file: sarif/findings.processed.sarif
 ```
+
+## Inputs
+
+### `inputSarifFile`
+
+The SARIF file to add Secure Code Warrior contextual training material to. **Default value:** `./findings.sarif`
+
+### `outputSarifFile`
+
+The SARIF file to add Secure Code Warrior contextual training material to. **Default value:** `./findings.processed.sarif`

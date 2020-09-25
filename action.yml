@@ -7,11 +7,11 @@ inputs:
   inputSarifFile:
     description: 'relative location of SARIF file to process'
     required: true
-    default: './results.sarif'
+    default: './findings.sarif'
   outputSarifFile:
     description: 'relative destination location for processed SARIF file'
     required: true
-    default: './results.processed.sarif'
+    default: './findings.processed.sarif'
 runs:
   using: 'node12'
   main: 'dist/index.js'
