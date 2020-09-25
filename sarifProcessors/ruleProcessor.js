@@ -55,7 +55,8 @@ async function process(run) {
                         helpProcessor.appendHeader(rule.help);
                     }
 
-                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos);
+                    const displayReference = `${match.displayReferenceType} ${match.referenceId}`;
+                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, displayReference);
                 }
             }
         }

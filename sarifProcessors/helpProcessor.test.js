@@ -7,13 +7,14 @@ const DESCRIPTION = 'SQL injection is bad.';
 const URL = 'https://scw.io/sql-injection';
 const VIDEOS = ['https://scw.io/video'];
 const NO_VIDEO = [];
+const DISPLAY_REF = 'CWE 123';
 
 test('helpProcessor should create both text and markdown if neither are present', async () => {
     const helpObj = {};
-    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS);
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `#### ${NAME}\n\n${DESCRIPTION}\n\n**[Train Now](${URL})** or [watch an explainer video](${VIDEOS[0]})`,
-        text: `${NAME} - ${DESCRIPTION} [Train Now](${URL}) or [watch an explainer video](${VIDEOS[0]})`
+        markdown: `#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+        text: `[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -21,9 +22,9 @@ test('helpProcessor should append to markdown if only markdown is present', asyn
     const helpObj = {
         markdown: 'existing markdown'
     };
-    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS);
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n#### ${NAME}\n\n${DESCRIPTION}\n\n**[Train Now](${URL})** or [watch an explainer video](${VIDEOS[0]})`
+        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -31,9 +32,9 @@ test('helpProcessor should append to markdown if only markdown is present (no vi
     const helpObj = {
         markdown: 'existing markdown'
     };
-    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, NO_VIDEO);
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, NO_VIDEO, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n#### ${NAME}\n\n${DESCRIPTION}\n\n**[Train Now](${URL})**`
+        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME}\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -41,9 +42,9 @@ test('helpProcessor should append to text if only text is present', async () => 
     const helpObj = {
         text: 'existing text'
     };
-    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS);
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        text: `existing text\n\n${NAME} - ${DESCRIPTION} [Train Now](${URL}) or [watch an explainer video](${VIDEOS[0]})`
+        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -52,10 +53,10 @@ test('helpProcessor should append to both text and markdown if both are present'
         markdown: 'existing markdown',
         text: 'existing text'
     };
-    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS);
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n#### ${NAME}\n\n${DESCRIPTION}\n\n**[Train Now](${URL})** or [watch an explainer video](${VIDEOS[0]})`,
-        text: `existing text\n\n${NAME} - ${DESCRIPTION} [Train Now](${URL}) or [watch an explainer video](${VIDEOS[0]})`
+        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 

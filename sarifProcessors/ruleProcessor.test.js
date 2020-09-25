@@ -34,15 +34,15 @@ test('ruleProcessor should load test001 and not add anything', async () => {
 
 test('ruleProcessor should load test002 and add contextual micro-learning material 4 times (for cWe-352 [ONLY ONCE - cwe-----352 should not add duplicate material], cwe89, CWE: 79 and CWE_94)', async () => {
     const sarif = await sarifLoader.load('./fixtures/test002.sarif');
-    const name = 'AAA';
-    const description = 'bbb';
-    const url = 'ccc';
-    const videos = ['ddd'];
+    const NAME = 'AAA';
+    const DESCRIPTION = 'bbb';
+    const URL = 'ccc';
+    const VIDEOS = ['ddd'];
     directLinking.getTrainingData.mockResolvedValue({
-        name,
-        description,
-        url,
-        videos
+        name: NAME,
+        description: DESCRIPTION,
+        url: URL,
+        videos: VIDEOS
     });
     await ruleProcessor.process(sarif.runs[0]);
 
@@ -62,7 +62,8 @@ test('ruleProcessor should load test002 and add contextual micro-learning materi
             "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
         },
         "help": {
-            "text": `some help text\n\nSecure Code Warrior Training:\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})`        }
+            "text": `some help text\n\nSecure Code Warrior Training:\n\n[CWE 89] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        }
     });
 
     // expect material added to help.text and help.markdown
@@ -81,23 +82,23 @@ test('ruleProcessor should load test002 and add contextual micro-learning materi
             "text": "something something cwe89 something CWE: 79 and\nsomething else cwe-----352 again"
         },
         "help": {
-            "text": `Some text here some text here\n\nSecure Code Warrior Training:\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})`,
-            "markdown": `# A Heading\n\nSome text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here\n\n## A Smaller Heading\n\nMore text here more text here more text here more text here more text here more text here CWE_94 more text here more text here\n\n## Secure Code Warrior Training\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})`
+            "text": `Some text here some text here\n\nSecure Code Warrior Training:\n\n[CWE 352] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 89] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 79] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 94] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+            "markdown": `# A Heading\n\nSome text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here some text here\n\n## A Smaller Heading\n\nMore text here more text here more text here more text here more text here more text here CWE_94 more text here more text here\n\n## Secure Code Warrior Training\n\n#### [CWE 352] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 89] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 79] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 94] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
         }
     });
 });
 
 test('ruleProcessor should load test003 and add 2 entries based on the rule id and name', async () => {
     const sarif = await sarifLoader.load('./fixtures/test003.sarif');
-    const name = 'AAA';
-    const description = 'bbb';
-    const url = 'ccc';
-    const videos = ['ddd'];
+    const NAME = 'AAA';
+    const DESCRIPTION = 'bbb';
+    const URL = 'ccc';
+    const VIDEOS = ['ddd'];
     directLinking.getTrainingData.mockResolvedValue({
-        name,
-        description,
-        url,
-        videos
+        name: NAME,
+        description: DESCRIPTION,
+        url: URL,
+        videos: VIDEOS
     });
     await ruleProcessor.process(sarif.runs[0]);
 
@@ -117,8 +118,8 @@ test('ruleProcessor should load test003 and add 2 entries based on the rule id a
           "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
         },
         "help": {
-          "text": `some help text\n\nSecure Code Warrior Training:\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})\n\n${name} - ${description} [Train Now](${url}) or [watch an explainer video](${videos[0]})`,
-          "markdown": `markdown version some link [here](https://github.com)\n\n## Secure Code Warrior Training\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})\n\n#### ${name}\n\n${description}\n\n**[Train Now](${url})** or [watch an explainer video](${videos[0]})`
+          "text": `some help text\n\nSecure Code Warrior Training:\n\n[CWE 22] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 23] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+          "markdown": `markdown version some link [here](https://github.com)\n\n## Secure Code Warrior Training\n\n#### [CWE 22] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 23] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
         }
       });
 });

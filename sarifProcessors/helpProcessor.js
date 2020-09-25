@@ -22,16 +22,18 @@ function appendHeader(helpObj) {
     addTextAndMarkdown(helpObj, textToAdd, markdownToAdd);
 }
 
-function appendTrainingData(helpObj, name, description, url, videos) {
+function appendTrainingData(helpObj, name, description, url, videos, displayReference) {
     // encode spaces in URLs to not break GFM
     url = url.replace(/ /g, '%20');
     if (videos && videos[0]) videos[0] = videos[0].replace(/ /g, '%20');
 
-    let textToAdd = `${name} - ${description} [Train Now](${url})`;
-    if (videos && videos[0]) textToAdd += ` or [watch an explainer video](${videos[0]})`;
+    let textToAdd = `[${displayReference}] ${name}`;
+    if (videos && videos[0]) textToAdd += ` [What is this?](${videos[0]})`;
+    textToAdd += `\n\n${description} [Try this challenge in Secure Code Warrior](${url})`;
 
-    let markdownToAdd = `#### ${name}\n\n${description}\n\n**[Train Now](${url})**`;
-    if (videos && videos[0]) markdownToAdd += ` or [watch an explainer video](${videos[0]})`;
+    let markdownToAdd = `#### [${displayReference}] ${name}`
+    if (videos && videos[0]) markdownToAdd += ` *[What is this?](${videos[0]})*`;
+    markdownToAdd += `\n\n* ${description} [Try this challenge in Secure Code Warrior](${url})`;
 
     addTextAndMarkdown(helpObj, textToAdd, markdownToAdd);
 }
