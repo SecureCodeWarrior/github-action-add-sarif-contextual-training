@@ -29,6 +29,8 @@ async function process(run) {
 
             if (rule.help) ruleText += textObjectProcessor.extractText(rule.help);
 
+            if (rule.properties && rule.properties.tags && Array.isArray(rule.properties.tags)) ruleText += rule.properties.tags.join(' ');
+
             // search ruleText
             const matches = cweSearcher.search(ruleText);
             const alreadyAddedEntries = {};
@@ -37,7 +39,7 @@ async function process(run) {
                 const matchId = `${match.referenceType}::${match.referenceId}`;
                 if (!alreadyAddedEntries[matchId]) {
                     alreadyAddedEntries[matchId] = 1;
-                    
+
                     // call Direct Linking API
                     let trainingData;
                     try {
