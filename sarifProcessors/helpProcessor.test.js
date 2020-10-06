@@ -13,8 +13,8 @@ test('helpProcessor should create both text and markdown if neither are present'
     const helpObj = {};
     helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
-        text: `[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        markdown: `#### [${DISPLAY_REF}] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+        text: `[${DISPLAY_REF}] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -24,7 +24,7 @@ test('helpProcessor should append to markdown if only markdown is present', asyn
     };
     helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -44,7 +44,7 @@ test('helpProcessor should append to text if only text is present', async () => 
     };
     helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -55,8 +55,8 @@ test('helpProcessor should append to both text and markdown if both are present'
     };
     helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, VIDEOS, DISPLAY_REF);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this?](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
-        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this?](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        markdown: `existing markdown\n\n#### [${DISPLAY_REF}] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+        text: `existing text\n\n[${DISPLAY_REF}] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
     });
 });
 
@@ -67,7 +67,7 @@ test('helpProcessor should append header to both text and markdown if both are p
     };
     helpProcessor.appendHeader(helpObj);
     expect(helpObj).toEqual({
-        markdown: `existing markdown\n\n## Secure Code Warrior Training`,
-        text: `existing text\n\nSecure Code Warrior Training:`
+        markdown: `existing markdown\n\n## Build your secure coding skills and defend your code`,
+        text: `existing text\n\nBuild your secure coding skills and defend your code:`
     });
 });
