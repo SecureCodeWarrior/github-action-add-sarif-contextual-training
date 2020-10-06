@@ -5,7 +5,7 @@ const directLinking = require('../directLinking');
 const helpProcessor = require('./helpProcessor');
 const textObjectProcessor = require('./textObjectProcessor');
 
-async function process(run) {
+async function process(run, languageKey) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
         for (const rule of run.tool.driver.rules) {
             let ruleText = '';
@@ -43,7 +43,7 @@ async function process(run) {
                     // call Direct Linking API
                     let trainingData;
                     try {
-                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, null); // currently no language data
+                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey); // currently no language data
                     }
                     catch (e) {
                         trainingData = null;
