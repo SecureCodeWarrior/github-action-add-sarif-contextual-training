@@ -5,13 +5,16 @@ branding:
   color: 'orange'
 inputs:
   inputSarifFile:
-    description: 'relative location of SARIF file to process'
+    description: 'Relative location of SARIF file to process'
     required: true
     default: './findings.sarif'
   outputSarifFile:
-    description: 'relative destination location for processed SARIF file'
+    description: 'Relative destination location for processed SARIF file'
     required: true
     default: './findings.processed.sarif'
+  githubToken:
+    description: 'Provide `secrets.GITHUB_TOKEN` to use the GitHub access token automatically supplied by GitHub Workflows'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

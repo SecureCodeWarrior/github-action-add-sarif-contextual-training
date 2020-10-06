@@ -32,6 +32,7 @@ Currently supports adding training material based on CWE references included in 
         with:
           inputSarifFile: sarif/findings.sarif
           outputSarifFile: sarif/findings.processed.sarif
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Import Results
         uses: github/codeql-action/upload-sarif@v1
@@ -48,3 +49,7 @@ The SARIF file to add Secure Code Warrior contextual training material to. **Def
 ### `outputSarifFile`
 
 The SARIF file to add Secure Code Warrior contextual training material to. **Default value:** `./findings.processed.sarif`
+
+### `githubToken` (optional)
+
+Provide `${{ secrets.GITHUB_TOKEN }}` to use the GitHub access token automatically supplied by GitHub Workflows. This enables language-specific training links to be generated (where available) by fetching the repository language from the GitHub API.
