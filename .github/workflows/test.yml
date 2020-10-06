@@ -24,3 +24,4 @@ jobs:
       with:
         inputSarifFile: ./fixtures/test002.sarif
         outputSarifFile: ./fixtures/test002.out.sarif
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
