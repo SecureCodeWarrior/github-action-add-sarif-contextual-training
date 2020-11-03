@@ -4,6 +4,7 @@ const cweSearcher = require('../referenceSearchers/cweSearcher');
 const directLinking = require('../directLinking');
 const helpProcessor = require('./helpProcessor');
 const textObjectProcessor = require('./textObjectProcessor');
+const phraseSearcher = require('../referenceSearchers/phraseSearcher');
 
 async function process(run, languageKey) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
@@ -32,7 +33,8 @@ async function process(run, languageKey) {
             if (rule.properties && rule.properties.tags && Array.isArray(rule.properties.tags)) ruleText += rule.properties.tags.join(' ');
 
             // search ruleText
-            const matches = cweSearcher.search(ruleText);
+            let matches = cweSearcher.search(ruleText);
+            matches = matches.concat(phraseSearcher.search(ruleText));
             const alreadyAddedEntries = {};
             let isShown = false;
             for (const match of matches) {
@@ -43,7 +45,7 @@ async function process(run, languageKey) {
                     // call Direct Linking API
                     let trainingData;
                     try {
-                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey); // currently no language data
+                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey);
                     }
                     catch (e) {
                         trainingData = null;
@@ -57,8 +59,7 @@ async function process(run, languageKey) {
                         helpProcessor.appendHeader(rule.help);
                     }
 
-                    const displayReference = `${match.displayReferenceType} ${match.referenceId}`;
-                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, displayReference);
+                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, match.displayReference);
                 }
             }
         }
