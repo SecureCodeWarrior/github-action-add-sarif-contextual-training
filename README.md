@@ -2,7 +2,7 @@
 
 This GitHub Action adds Secure Code Warrior contextual application security training material to SARIF files. This training material will be displayed within Code Scanning alerts if the resulting SARIF file is imported using the `github/codeql-action/upload-sarif` Action, and includes links to secure coding exercises and short explainer videos where available.
 
-This Action currently supports adding training material based on CWE references included in static analysis findings.
+This Action currently supports adding training material based on CWE references (e.g. CWE 89) and common vulnerability phrases (e.g. use-after-free vulnerability) included in static analysis findings.
 
 ## Usage
 
