@@ -167,3 +167,47 @@ test('ruleProcessor should load test004 and add 4 entries based on the rule id, 
         }
     });
 });
+
+test('ruleProcessor should load test005 and add 6 entries based on the rule id, rule name, short description, full description and tags (x2)', async () => {
+    const sarif = await sarifLoader.load('./fixtures/test005.sarif');
+    const NAME = 'AAA';
+    const DESCRIPTION = 'bbb';
+    const URL = 'ccc';
+    const VIDEOS = ['ddd'];
+    directLinking.getTrainingData.mockResolvedValue({
+        name: NAME,
+        description: DESCRIPTION,
+        url: URL,
+        videos: VIDEOS
+    });
+    await ruleProcessor.process(sarif.runs[0]);
+
+    // expect material added to help.text and help.markdown
+    expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
+        "id": "TEST01 CWE-22",
+        "name": "Test 01 rule name cwe: 23",
+        "messageStrings": {
+            "default": {
+                "text": "This is the message text. It might be very long."
+            }
+        },
+        "shortDescription": {
+            "text": "SQL injection in some component"
+        },
+        "fullDescription": {
+            "text": "There is a use-after-free vulnerability in there somewhere too"
+        },
+        "help": {
+            "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 22] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 23] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 24] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "SQL injection"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "use-after-free"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "ssrF"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+            "markdown": `markdown version some link [here](https://github.com)\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 22] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 23] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 24] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "SQL injection"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "use-after-free"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "ssrF"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+        },
+        "properties": {
+            "tags": [
+                "Tag A",
+                "cwE-24",
+                "Tag B",
+                "ssrF"
+            ]
+        }
+    });
+});

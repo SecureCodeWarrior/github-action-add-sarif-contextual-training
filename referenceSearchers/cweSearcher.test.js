@@ -7,6 +7,7 @@ test('cweSearcher uppercase and no space', async () => {
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'CWE22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -19,6 +20,7 @@ test('cweSearcher uppercase and space with leading characters', async () => {
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'CWE 22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -31,6 +33,7 @@ test('cweSearcher lowercase and underscore with trailing characters', async () =
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cwe_22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -43,6 +46,7 @@ test('cweSearcher mixed case and dash with leading and trailing characters', asy
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cWe-22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -55,6 +59,7 @@ test('cweSearcher mixed case and colon with leading and trailing space and chara
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'CwE:22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -67,6 +72,7 @@ test('cweSearcher mixed case and colon with space', async () => {
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cWE: 22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -79,6 +85,7 @@ test('cweSearcher lowercase and mix of colon, dash, underscore and space, and le
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cwe:-_    _-:::---_ 22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -91,30 +98,35 @@ test('cweSearcher multiple matches', async () => {
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cwe:-_    _-:::---_ 22',
             referenceType: 'cwe',
             referenceId: '22'
         },
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 94",
             fullMatchedText: 'cwe94',
             referenceType: 'cwe',
             referenceId: '94'
         },
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 89",
             fullMatchedText: 'CWE89',
             referenceType: 'cwe',
             referenceId: '89'
         },
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 123",
             fullMatchedText: 'CwE: 123',
             referenceType: 'cwe',
             referenceId: '123'
         },
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 456",
             fullMatchedText: 'cwe_456',
             referenceType: 'cwe',
             referenceId: '456'
@@ -127,6 +139,7 @@ test('cweSearcher multiline lowercase with space', async () => {
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'cwe 22',
             referenceType: 'cwe',
             referenceId: '22'
@@ -139,12 +152,14 @@ test('cweSearcher multiple matches multiline mixed case with mixture', async () 
     expect(result).toEqual([
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 22",
             fullMatchedText: 'CwE 22',
             referenceType: 'cwe',
             referenceId: '22'
         },
         {
             displayReferenceType: 'CWE',
+            displayReference: "CWE 89",
             fullMatchedText: 'cwE   :::---___  __89',
             referenceType: 'cwe',
             referenceId: '89'

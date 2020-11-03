@@ -6012,11 +6012,44 @@ function search(text) {
     while (textMatch !== null) {
         if (textMatch) matches.push({
             displayReferenceType: 'CWE',
+            displayReference: `CWE ${textMatch[1]}`,
             referenceType: 'cwe',
             referenceId: textMatch[1],
             fullMatchedText: textMatch[0]
         });
         textMatch = regex.exec(text);
+    }
+    return matches;
+}
+
+module.exports = {
+    search
+};
+
+
+/***/ }),
+
+/***/ 6:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+const phraseList = __webpack_require__(244);
+
+function search(text) {
+    const matches = [];
+    for (const key in phraseList) {
+        const phrase = phraseList[key];
+        const regex = new RegExp(key, 'i');
+        let textMatch = regex.exec(text);
+        if (textMatch !== null) matches.push({
+            displayReferenceType: 'Phrase',
+            displayReference: `Matched on "${textMatch[0]}"`,
+            referenceType: 'phrase',
+            referenceId: phrase,
+            fullMatchedText: textMatch[0]
+        });
     }
     return matches;
 }
@@ -6128,6 +6161,7 @@ const cweSearcher = __webpack_require__(9541);
 const directLinking = __webpack_require__(5558);
 const helpProcessor = __webpack_require__(7470);
 const textObjectProcessor = __webpack_require__(1081);
+const phraseSearcher = __webpack_require__(6);
 
 async function process(run, languageKey) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
@@ -6156,7 +6190,8 @@ async function process(run, languageKey) {
             if (rule.properties && rule.properties.tags && Array.isArray(rule.properties.tags)) ruleText += rule.properties.tags.join(' ');
 
             // search ruleText
-            const matches = cweSearcher.search(ruleText);
+            let matches = cweSearcher.search(ruleText);
+            matches = matches.concat(phraseSearcher.search(ruleText));
             const alreadyAddedEntries = {};
             let isShown = false;
             for (const match of matches) {
@@ -6167,7 +6202,7 @@ async function process(run, languageKey) {
                     // call Direct Linking API
                     let trainingData;
                     try {
-                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey); // currently no language data
+                        trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey);
                     }
                     catch (e) {
                         trainingData = null;
@@ -6181,8 +6216,7 @@ async function process(run, languageKey) {
                         helpProcessor.appendHeader(rule.help);
                     }
 
-                    const displayReference = `${match.displayReferenceType} ${match.referenceId}`;
-                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, displayReference);
+                    helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, match.displayReference);
                 }
             }
         }
@@ -6238,6 +6272,14 @@ module.exports = {
 
 module.exports = eval("require")("encoding");
 
+
+/***/ }),
+
+/***/ 244:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse("{\"nosql injection\":\"nosql injection\",\"sql injection\":\"sql injection\",\"sqli\":\"sqli\",\"code injection\":\"code injection\",\"external entity injection\":\"external entity injection\",\"xxe\":\"xxe\",\"http injection\":\"http injection\",\"header injection\":\"header injection\",\"response splitting\":\"response splitting\",\"cr.?lf injection\":\"cr-lf injection\",\"ldap injection\":\"ldap injection\",\"ldap query (incorporating|including) untrusted data\":\"ldap query incorporating untrusted data\",\"(os )?command injection\":\"os command injection\",\"argument injection\":\"argument injection\",\"path traversal\":\"path traversal\",\"directory traversal\":\"directory traversal\",\"local file inclusion\":\"local file inclusion\",\"remote file inclusion\":\"remote file inclusion\",\"cross.site script inclusion\":\"cross-site script inclusion\",\"xml injection\":\"xml injection\",\"xpath injection\":\"xpath injection\",\"xquery injection\":\"xquery injection\",\"email injection\":\"email injection\",\"deserialization of untrusted data\":\"deserialization of untrusted data\",\"deserialization attack\":\"deserialization attack\",\"(insecure|unsafe|insecure|untrusted) deserialization\":\"insecure deserialization\",\"log forging\":\"log forging\",\"log injection\":\"log injection\",\"resource injection\":\"resource injection\",\"link injection\":\"link injection\",\"css injection\":\"css injection\",\"(weak|improper|missing|broken) input validation\":\"weak input validation\",\"injection attack\":\"injection attack\",\"(improper|insecure|insufficient|broken)( user)? authentication\":\"insecure authentication\",\"lack of sufficient authentication\":\"lack of sufficient authentication\",\"able to login without valid username and password\":\"able to login without valid username and password\",\"api does not validate( the)? authentication token\":\"api does not validate authentication token\",\"authentication bypass\":\"authentication bypass\",\"forceful browsing\":\"forceful browsing\",\"username enumeration\":\"username enumeration\",\"account enumeration\":\"account enumeration\",\"password enumeration\":\"password enumeration\",\"insufficiently protected credentials\":\"insufficiently protected credentials\",\"weak password policy\":\"weak password policy\",\"(insecure|improper|broken) password change\":\"insecure password change\",\"(insecure|improper|broken) change password\":\"insecure change password\",\"insecure password reset\":\"insecure password reset\",\"insecure forgot(ten)? password\":\"insecure forgot password\",\"insufficient session expiration\":\"insufficient session expiration\",\"failure to invalidate sessions\":\"failure to invalidate sessions\",\"improper session invalidation\":\"improper session invalidation\",\"weak session token\":\"weak session token\",\"insufficient session identifier length\":\"insufficient session identifier length\",\"exposed session token\":\"exposed session token\",\"(improper|insecure) session handling\":\"insecure session handling\",\"cross.site request forgery\":\"cross-site request forgery\",\"csrf\":\"csrf\",\"(insecure|weak) cryptographic (algorithm|cipher|hash)\":\"weak cryptographic algorithm\",\"(insecure|weak) (algorithm|cipher|hash)\":\"weak algorithm\",\"(insecure|weak) encryption\":\"weak encryption\",\"64.bit( block)?( size)? cipher\":\"64-bit block size cipher\",\"exposed cryptographic key\":\"exposed cryptographic key\",\"crypto keys are available in local storage\":\"crypto keys are available in local storage\",\"padding oracle\":\"padding oracle\",\"encryption oracle\":\"encryption oracle\",\"decryption oracle\":\"decryption oracle\",\"insecure randomness\":\"insecure randomness\",\"application implements cryptography insecurely\":\"application implements cryptography insecurely\",\"plaintext storage of password\":\"plaintext storage of password\",\"plaintext password storage\":\"plaintext password storage\",\"cleartext storage of password\":\"cleartext storage of password\",\"cleartext password storage\":\"cleartext password storage\",\"plaintext storage of sensitive information\":\"plaintext storage of sensitive information\",\"plaintext storage of sensitive data\":\"plaintext storage of sensitive data\",\"cleartext storage of sensitive information\":\"cleartext storage of sensitive information\",\"cleartext storage of sensitive data\":\"cleartext storage of sensitive data\",\"sensitive (data|information) stored insecurely\":\"sensitive information stored insecurely\",\"exposed in (clear|plain).?text\":\"exposed in cleartext\",\"insecure data storage\":\"insecure data storage\",\"(improper|insecure|insufficient) (authorization|authorisation|access control)\":\"insufficient access control\",\"(authorization|authorisation|access control) issues\":\"access control issues\",\"broken (authorization|authorisation|access control)\":\"broken access control\",\"lack of sufficient (authorization|authorisation|access control)\":\"lack of sufficient access control\",\"insecure direct object reference\":\"insecure direct object reference\",\"missing function level (authorization|authorisation|access control)\":\"missing function level access control\",\"broken function level (authorization|authorisation|access control)\":\"broken function level access control\",\"missing object level (authorization|authorisation|access control)\":\"missing object level access control\",\"broken object level (authorization|authorisation|access control)\":\"broken object level access control\",\"using input from untrusted source\":\"using input from untrusted source\",\"buffer overflow\":\"buffer overflow\",\"double free\":\"double free\",\"stack overflow\":\"stack overflow\",\"heap overflow\":\"heap overflow\",\"heap.?based buffer overflow\":\"heap-based buffer overflow\",\"null dereference\":\"null dereference\",\"integer overflow\":\"integer overflow\",\"use.after.free\":\"use-after-free\",\"type confusion\":\"type confusion\",\"illegal pointer value\":\"illegal pointer value\",\"uninitialized variable\":\"uninitialized variable\",\"race condition\":\"race condition\",\"unprotected transport of credentials\":\"unprotected transport of credentials\",\"unprotected transport of password\":\"unprotected transport of password\",\"unprotected transport of sensitive (data|information)\":\"unprotected transport of sensitive information\",\"mixed content\":\"mixed content\",\"html5 cross-origin resource sharing - unencrypted origin\":\"html5 cross-origin resource sharing - unencrypted origin\",\"insecure communication\":\"insecure communication\",\"insecure http transport\":\"insecure http transport\",\"weak protocol\":\"weak protocol\",\"support for tlsv1.0\":\"support for tlsv1.0\",\"error details (displayed|shown)\":\"error details displayed\",\"descriptive error message\":\"descriptive error message\",\"system information exposed\":\"system information exposed\",\"debug information (displayed|shown)\":\"debug information displayed\",\"unintended data leakage via debugging logic\":\"unintended data leakage via debugging logic\",\"sensitive (data|information) (expose|exposure)\":\"sensitive information exposure\",\"information (disclosure|exposure|leakage)\":\"information disclosure\",\"click ?jack\":\"clickjack\",\"disabled security feature\":\"disabled security feature\",\"debug features? enabled\":\"debug feature enabled\",\"debug mode enabled\":\"debug mode enabled\",\"known vulnerable component\":\"known vulnerable component\",\"outdated (library|libraries)\":\"outdated library\",\"vulnerable (library|libraries)\":\"vulnerable library\",\"framework with known (issues|vulnerabilities)\":\"framework with known vulnerabilities\",\"components? from untrusted source\":\"component from untrusted source\",\"(third|3rd).party javascript include\":\"third-party javascript include\",\"html5 cross-origin resource sharing - third-party origin\":\"html5 cross-origin resource sharing - third-party origin\",\"unvalidated (redirect|forward)\":\"unvalidated redirect\",\"stored xss\":\"stored xss\",\"stored cross.site.scripting\":\"stored cross-site scripting\",\"persistent xss\":\"persistent xss\",\"persistent cross.site.scripting\":\"persistent cross-site scripting\",\"reflected xss\":\"reflected xss\",\"reflected cross.site.scripting\":\"reflected cross-site scripting\",\"dom(.based)? xss\":\"dom-based xss\",\"dom(.based)? cross.site.scripting\":\"dom-based cross-site scripting\",\"html injection\":\"html injection\",\"mixed server and client side rendering\":\"mixed server and client side rendering\",\"xss\":\"xss\",\"cross.site.scripting\":\"cross-site scripting\",\"business logic (abuse|bypass|flaw)\":\"business logic bypass\",\"timing attack\":\"timing attack\",\"keyboard caching\":\"keyboard caching\",\"clipboard buffer caching\":\"clipboard buffer caching\",\"http cacheable response\":\"http cacheable response\",\"file upload vulnerability\":\"file upload vulnerability\",\"(regular expression|regex) (dos|denial.of.service)\":\"regular expression denial of service\",\"failure to release resource\":\"failure to release resource\",\"routing (dos|denial.of.service)\":\"routing denial of service\",\"denial.of.service\":\"denial of service\",\"insufficient (logging|monitoring)\":\"insufficient logging\",\"server.side request forgery\":\"server-side request forgery\",\"ssrf\":\"ssrf\",\"insufficient anti.?automation\":\"insufficient anti-automation\",\"captcha bypass\":\"captcha bypass\",\"(improper|broken|insecure) captcha\":\"insecure captcha\",\"(insecure|insufficient) account lock.?out\":\"insufficient account lockout\",\"lack of account lock.?out\":\"lack of account lockout\",\"improper restriction of excessive authentication attempts\":\"improper restriction of excessive authentication attempts\",\"insufficient data protection\":\"insufficient data protection\",\"insecure storage on (sdcard|external storage)\":\"insecure storage on external storage\",\"insecure storage in (plist|xml file)\":\"insecure storage in plist file\",\"(property list|plist) file\":\"plist file\",\"insecure storage in sqlite\":\"insecure storage in sqlite\",\"certificate pinning\":\"certificate pinning\",\"application does not validate ssl certificates\":\"application does not validate ssl certificates\",\"app(lication)? background(ing)? screenshot\":\"application backgrounding screenshot\",\"insecure logging of user data\":\"insecure logging of user data\",\"storing credentials (with|for) .?remember me.?\":\"storing credentials for remember me\",\"use of spoofable parameters for authentication\":\"use of spoofable parameters for authentication\",\"client.side authentication\":\"client-side authentication\",\"hard.?coded api key\":\"hard-coded api key\",\"misuse of fingerprint\":\"misuse of fingerprint\",\"hard.?coded (key|credential|password)\":\"hard-coded credential\",\"aes key( are|is)? hardcoded in mobile client\":\"aes key hardcoded in mobile client\",\"aes.gcm without aad mode enforced\":\"aes-gcm without aad mode enforced\",\"insecure use of java.util.random\":\"insecure use of java.util.random\",\"private key stored without password protection\":\"private key stored without password protection\",\"code obfuscation\":\"code obfuscation\",\"protection from debugger\":\"protection from debugger\",\"debugger protection\":\"debugger protection\",\"protection from runtime injection\":\"protection from runtime injection\",\"runtime injection protection\":\"runtime injection protection\",\"position.independent.(code|executable)\":\"position independent executable\",\"lack of binary protection\":\"lack of binary protection\",\"tap.?jacking\":\"tap-jacking\",\"webview settings\":\"webview settings\",\"incorrect activity configuration\":\"incorrect activity configuration\",\"insecure use of pasteboard\":\"insecure use of pasteboard\",\"misuse of url scheme\":\"misuse of url scheme\",\"url scheme with unspecified role\":\"url scheme with unspecified role\",\"misuse of intent\":\"misuse of intent\",\"misuse of broadcast receiver\":\"misuse of broadcast receiver\",\"misuse of keychain\":\"misuse of keychain\",\"improper platform usage\":\"improper platform usage\",\"debug symbols and developer build directories disclosed\":\"debug symbols and developer build directories disclosed\",\"emulation detection\":\"emulation detection\"}");
 
 /***/ }),
 
