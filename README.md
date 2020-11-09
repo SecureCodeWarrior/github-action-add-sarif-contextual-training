@@ -6,6 +6,8 @@ This Action currently supports adding training material based on CWE references 
 
 ## Usage
 
+### Individual SARIF file
+
 ```yaml
     steps:
       # Fetch SARIF - for example:
@@ -40,15 +42,67 @@ This Action currently supports adding training material based on CWE references 
           sarif_file: sarif/findings.processed.sarif
 ```
 
+### Multiple SARIF files using glob path
+
+```yaml
+    steps:
+      # Fetch SARIF - see additional examples above
+      - name: Download SARIF
+        uses: vendor/sast-tool-sarif@v1
+        with:
+          user: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          scan-id: ${{ secrets.SCAN_ID }}
+          output-dir: ./sarifs # in this example we assume the tool outputs multiple SARIF files as .json files
+
+      - name: Add SCW Training
+        uses: SecureCodeWarrior/github-action-add-sarif-contextual-training@v1
+        with:
+          inputSarifFile: ./sarifs/*.json
+          outputSarifFile: ./processed-sarifs
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Import Results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ./processed-sarifs
+```
+
+### Multiple SARIF files in directory
+
+```yaml
+    steps:
+      # Fetch SARIF - see additional examples above
+      - name: Download SARIF
+        uses: vendor/sast-tool-sarif@v1
+        with:
+          user: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          scan-id: ${{ secrets.SCAN_ID }}
+          output-dir: ./sarifs # in this example we assume the tool outputs multiple SARIF files in nested directories within the specified output directory
+
+      - name: Add SCW Training
+        uses: SecureCodeWarrior/github-action-add-sarif-contextual-training@v1
+        with:
+          inputSarifFile: ./sarifs
+          outputSarifFile: ./processed-sarifs
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Import Results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ./processed-sarifs
+```
+
 ## Inputs
 
 ### `inputSarifFile`
 
-The SARIF file to add Secure Code Warrior contextual training material to. **Default value:** `./findings.sarif`
+The SARIF file(s) to add Secure Code Warrior contextual training material to. This can be a path to a single file (e.g. `./findings.sarif`), a glob path (e.g. `./scans/**/*.sarif`) or a directory (d.g. `./scans`), in which case all `.sarif` files recursively in the specified directory will be processed. **Default value:** `./findings.sarif`
 
 ### `outputSarifFile`
 
-The SARIF file to add Secure Code Warrior contextual training material to. **Default value:** `./findings.processed.sarif`
+The output path of the resulting SARIF file(s) with Secure Code Warrior contextual training material appended. If a glob path or a directory was provided as the `inputSarifFile` input then the resulting SARIF files will be output to the `./processed-sarifs` directory, which can then simply be the path provided in the `sarif_file` input of the `github/codeql-action/upload-sarif` action. **Default value:** `./findings.processed.sarif`
 
 ### `githubToken` (optional)
 
