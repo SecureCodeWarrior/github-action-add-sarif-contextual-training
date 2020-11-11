@@ -1,16 +1,16 @@
 name: 'Add Secure Code Warrior contextual training to SARIF'
-description: 'GitHub Action for adding contextual application security training material to SARIF files based on CWE references'
+description: 'Adds contextual application security training material to SARIF files, providing links to secure coding exercises and short explainer videos'
 author: 'SecureCodeWarrior'
 branding:
   icon: 'shield'  
   color: 'orange'
 inputs:
   inputSarifFile:
-    description: 'Relative location of SARIF file to process'
+    description: 'Relative location of SARIF file(s) to process'
     required: true
     default: './findings.sarif'
   outputSarifFile:
-    description: 'Relative destination location for processed SARIF file'
+    description: 'Relative destination location for processed SARIF file(s)'
     required: true
     default: './findings.processed.sarif'
   githubToken:
