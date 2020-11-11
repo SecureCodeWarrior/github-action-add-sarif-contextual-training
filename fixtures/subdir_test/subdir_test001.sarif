@@ -1,0 +1,84 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Tool Name 3",
+          "rules": [
+            {
+              "id": "TEST01",
+              "name": "Test 01 rule name",
+              "messageStrings": {
+                "default": {
+                  "text": "This is the message text. It might be very long."
+                }
+              },
+              "shortDescription": {
+                "text": "Failed to release dynamic memory."
+              },
+              "fullDescription": {
+                "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
+              },
+              "help": {
+                "text": "some help text",
+                "markdown": "markdown version some link [here](https://github.com)"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TEST01",
+          "level": "error",
+          "message": {
+            "text": "Result text. This result does not have a rule associated."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.js"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 4,
+                  "endColumn": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "39fa2ee980eb94b0:1"
+          }
+        },
+        {
+          "ruleId": "TEST01",
+          "level": "note",
+          "message": {
+            "text": "more different text."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.js"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 5,
+                  "endColumn": 8
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "39fa2ee980eb94d0:1"
+          }
+        }
+      ]
+    }
+  ]
+}
