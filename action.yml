@@ -1,5 +1,5 @@
 name: 'Add Secure Code Warrior contextual training to SARIF'
-description: 'Adds contextual application security training material to SARIF files, providing links to secure coding exercises and short explainer videos'
+description: 'Add contextual application security training to SARIF files, providing links to secure coding exercises and explainer videos'
 author: 'SecureCodeWarrior'
 branding:
   icon: 'shield'  
