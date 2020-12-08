@@ -52,7 +52,6 @@ const languageResolver = __webpack_require__(521);
 const sarifLoader = __webpack_require__(5787);
 const resultProcessor = __webpack_require__(4885);
 const ruleProcessor = __webpack_require__(5732);
-const taxonomyProcessor = __webpack_require__(8172);
 
 const OUTPUT_DIR = 'processed-sarifs';
 
@@ -92,14 +91,11 @@ async function run() {
             // process each run
             if (sarif && sarif.runs) {
                 for (const run of sarif.runs) {
-                    // process run for rules
-                    await ruleProcessor.process(run, languageKey);
-
-                    // process run for taxonomies
-                    await taxonomyProcessor.process(run, languageKey);
-
                     // process run for results
-                    await resultProcessor.process(run, languageKey);
+                    const triggeredRules = await resultProcessor.process(run, languageKey);
+                    
+                    // process run for rules
+                    await ruleProcessor.process(run, languageKey, triggeredRules);
                 }
             }
 
@@ -9521,7 +9517,19 @@ module.exports = {
 
 
 async function process(run) {
-    return run;
+    const ruleMap = new Map();
+
+    if (run && run.results) {
+        for (const result of run.results) {
+            const ruleId = result.ruleId;
+            const seen = ruleMap.get(ruleId);
+            if (seen === undefined) {
+                ruleMap.set(ruleId, true);
+            }
+        }
+    }
+
+    return ruleMap;
 }
 
 module.exports = {
@@ -9543,9 +9551,13 @@ const helpProcessor = __webpack_require__(7470);
 const textObjectProcessor = __webpack_require__(1081);
 const phraseSearcher = __webpack_require__(6);
 
-async function process(run, languageKey) {
+async function process(run, languageKey, triggeredRules) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
         for (const rule of run.tool.driver.rules) {
+            if (!triggeredRules.has(rule.id)) {
+                continue;
+            }
+
             let ruleText = '';
 
             if (rule.id) ruleText += rule.id;
@@ -9601,23 +9613,6 @@ async function process(run, languageKey) {
             }
         }
     }
-}
-
-module.exports = {
-    process
-};
-
-
-/***/ }),
-
-/***/ 8172:
-/***/ ((module) => {
-
-"use strict";
-
-
-async function process(run) {
-    return run;
 }
 
 module.exports = {
