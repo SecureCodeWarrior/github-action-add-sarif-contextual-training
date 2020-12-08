@@ -9,7 +9,9 @@ jest.mock('../directLinking');
 test('ruleProcessor should load test001 and not add anything', async () => {
     const sarifs = await sarifLoader.load('./fixtures/test001.sarif');
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0]);
+        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+            ['TEST01', true]
+        ]));
 
         // expect no change
         expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
@@ -48,7 +50,10 @@ test('ruleProcessor should load test002 and add contextual micro-learning materi
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0]);
+        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+            ['TEST01', true],
+            ['TEST02', true]
+        ]));
 
         // expect material added to help.text only
         expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
@@ -107,7 +112,9 @@ test('ruleProcessor should load test003 and add 2 entries based on the rule id a
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0]);
+        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+            ['TEST01 CWE-22', true]
+        ]));
 
         // expect material added to help.text and help.markdown
         expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
@@ -146,7 +153,9 @@ test('ruleProcessor should load test004 and add 4 entries based on the rule id, 
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0]);
+        await ruleProcessor.process(sarif.runs[0], 'python', new Map([
+            ['TEST01 CWE-22', true]
+        ]));
 
         // expect material added to help.text and help.markdown
         expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
@@ -193,7 +202,9 @@ test('ruleProcessor should load test005 and add 6 entries based on the rule id, 
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0]);
+        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+            ['TEST01 CWE-22', true]
+        ]));
 
         // expect material added to help.text and help.markdown
         expect(sarif.runs[0].tool.driver.rules[0]).toEqual({

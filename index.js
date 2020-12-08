@@ -8,7 +8,6 @@ const languageResolver = require('./languageResolver');
 const sarifLoader = require('./sarifLoader');
 const resultProcessor = require('./sarifProcessors/resultProcessor');
 const ruleProcessor = require('./sarifProcessors/ruleProcessor');
-const taxonomyProcessor = require('./sarifProcessors/taxonomyProcessor');
 
 const OUTPUT_DIR = 'processed-sarifs';
 
@@ -48,14 +47,11 @@ async function run() {
             // process each run
             if (sarif && sarif.runs) {
                 for (const run of sarif.runs) {
-                    // process run for rules
-                    await ruleProcessor.process(run, languageKey);
-
-                    // process run for taxonomies
-                    await taxonomyProcessor.process(run, languageKey);
-
                     // process run for results
-                    await resultProcessor.process(run, languageKey);
+                    const triggeredRules = await resultProcessor.process(run, languageKey);
+                    
+                    // process run for rules
+                    await ruleProcessor.process(run, languageKey, triggeredRules);
                 }
             }
 
