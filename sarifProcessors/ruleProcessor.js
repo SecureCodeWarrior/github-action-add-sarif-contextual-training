@@ -6,9 +6,13 @@ const helpProcessor = require('./helpProcessor');
 const textObjectProcessor = require('./textObjectProcessor');
 const phraseSearcher = require('../referenceSearchers/phraseSearcher');
 
-async function process(run, languageKey) {
+async function process(run, languageKey, triggeredRules) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
         for (const rule of run.tool.driver.rules) {
+            if (!triggeredRules.has(rule.id)) {
+                continue;
+            }
+
             let ruleText = '';
 
             if (rule.id) ruleText += rule.id;

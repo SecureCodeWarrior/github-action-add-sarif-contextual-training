@@ -1,6 +1,6 @@
 {
   "name": "github-action-add-sarif-contextual-training",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "GitHub Action for adding contextual training material to SARIF files",
   "main": "index.js",
   "scripts": {
