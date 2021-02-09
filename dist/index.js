@@ -45,84 +45,29 @@ module.exports = {
 
 
 const core = __webpack_require__(2186);
-const fs = __webpack_require__(5747).promises;
-const _fs = __webpack_require__(5747);
+const languageResolver = __webpack_require__(521)
+const logger = __webpack_require__(1517);
+const { run } = __webpack_require__(3401);
 
-const languageResolver = __webpack_require__(521);
-const sarifLoader = __webpack_require__(5787);
-const resultProcessor = __webpack_require__(4885);
-const ruleProcessor = __webpack_require__(5732);
+async function start() {
+    const inFile = core.getInput('inputSarifFile');
+    const outFile = core.getInput('outputSarifFile');
 
-const OUTPUT_DIR = 'processed-sarifs';
+    logger.setLogger((msg) => core.debug(msg));
 
-async function writeOutputFile(outFilename, data) {
-    await fs.writeFile(outFilename, data, 'utf8');
-}
-
-async function run() {
-    try {
-        const inFile = core.getInput('inputSarifFile');
-        const outFile = core.getInput('outputSarifFile');
-
-        // check if token provided and get language
-        const githubToken = core.getInput('githubToken');
-        let languageKey = null;
-        if (githubToken) {
-            languageKey = await languageResolver.getLanguageFromRepo(githubToken);
-            core.debug(`Repository language: ${languageKey}`);
-        }
-
-        const pathType = await sarifLoader.getPathType(inFile);
-        let fileCount = 1;
-        core.debug(`Input path type: ${pathType}`);
-
-        if (pathType !== 'file') {
-            const exists = await _fs.existsSync(OUTPUT_DIR);
-            if (!exists) {
-                await fs.mkdir(OUTPUT_DIR);
-            }
-        }
-
-        // load SARIF file from input location
-        const sarifs = await sarifLoader.load(inFile);
-        for (const sarif of sarifs) {
-            core.debug(JSON.stringify(sarif, null, 4));
-
-            // process each run
-            if (sarif && sarif.runs) {
-                for (const run of sarif.runs) {
-                    // process run for results
-                    const triggeredRules = await resultProcessor.process(run, languageKey);
-                    
-                    // process run for rules
-                    await ruleProcessor.process(run, languageKey, triggeredRules);
-                }
-            }
-
-            // write SARIF file to output location
-            const outputData = JSON.stringify(sarif);
-            core.debug(JSON.stringify(sarif, null, 4));
-
-            if (pathType === 'file') {
-                core.debug(`Writing file: ${outFile}`);
-                await writeOutputFile(outFile, outputData);
-            }
-            else {
-                const outPath = `./${OUTPUT_DIR}/${fileCount}.sarif`;
-                core.debug(`Writing file: ${outPath}`);
-                await writeOutputFile(outPath, outputData);
-            }
-
-            fileCount++;
-        }
-
-    } catch (error) {
-        core.setFailed(error.message);
-        throw error;
+    // check if token provided and get language
+    const githubToken = core.getInput('githubToken');
+    let languageKey = null;
+    if (githubToken) {
+        languageKey = await languageResolver.getLanguageFromRepo(githubToken);
+        logger.debug(`Repository language: ${languageKey}`);
     }
+
+    const onFailure = (message) => core.setFailed(message);
+    run(inFile, outFile, githubToken, languageKey, onFailure);
 }
 
-run();
+start();
 
 
 /***/ }),
@@ -200,6 +145,26 @@ module.exports = {
     getLanguageFromRepo
 };
 
+
+/***/ }),
+
+/***/ 1517:
+/***/ ((module) => {
+
+let logger = null;
+
+function setLogger(loggerFunction) {
+    logger = loggerFunction;
+}
+
+function debug(message) {
+    logger(message);
+}
+
+module.exports = {
+    setLogger,
+    debug
+}
 
 /***/ }),
 
@@ -9368,18 +9333,96 @@ module.exports = {
 
 /***/ }),
 
+/***/ 3401:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+// const core = require('@actions/core');
+const fs = __webpack_require__(5747).promises;
+const _fs = __webpack_require__(5747);
+
+const sarifLoader = __webpack_require__(5787);
+const resultProcessor = __webpack_require__(4885);
+const ruleProcessor = __webpack_require__(5732);
+const logger = __webpack_require__(1517);
+
+const OUTPUT_DIR = 'processed-sarifs';
+
+async function writeOutputFile(outFilename, data) {
+    await fs.writeFile(outFilename, data, 'utf8');
+}
+
+async function run(inFile, outFile, githubToken, languageKey, onFailure) {
+    try {
+        const pathType = await sarifLoader.getPathType(inFile);
+        let fileCount = 1;
+        logger.debug(`Input path type: ${pathType}`);
+
+        if (pathType !== 'file') {
+            const exists = await _fs.existsSync(OUTPUT_DIR);
+            if (!exists) {
+                await fs.mkdir(OUTPUT_DIR);
+            }
+        }
+
+        console.log(inFile);
+        // load SARIF file from input location
+        const sarifs = await sarifLoader.load(inFile);
+        for (const sarif of sarifs) {
+            logger.debug(JSON.stringify(sarif, null, 4));
+
+            // process each run
+            if (sarif && sarif.runs) {
+                for (const run of sarif.runs) {
+                    // process run for results
+                    const triggeredRules = await resultProcessor.process(run, languageKey);
+                    
+                    // process run for rules
+                    await ruleProcessor.process(run, languageKey, triggeredRules);
+                }
+            }
+
+            // write SARIF file to output location
+            const outputData = JSON.stringify(sarif);
+            logger.debug(JSON.stringify(sarif, null, 4));
+
+            if (pathType === 'file') {
+                logger.debug(`Writing file: ${outFile}`);
+                await writeOutputFile(outFile, outputData);
+            }
+            else {
+                const outPath = `./${OUTPUT_DIR}/${fileCount}.sarif`;
+                logger.debug(`Writing file: ${outPath}`);
+                await writeOutputFile(outPath, outputData);
+            }
+
+            fileCount++;
+        }
+
+    } catch (error) {
+        onFailure(error.message);
+        throw error;
+    }
+}
+
+module.exports = {
+    run
+}
+
+/***/ }),
+
 /***/ 5787:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-const core = __webpack_require__(2186);
 const fs = __webpack_require__(5747).promises;
 const _glob = __webpack_require__(1957);
 const path = __webpack_require__(5622);
 const util = __webpack_require__(1669);
 const glob = util.promisify(_glob);
+
+const logger = __webpack_require__(1517);
 
 const regex = new RegExp(/\.sarif$/, 'i');
 
@@ -9412,7 +9455,7 @@ async function getDirectoryFiles(inDirPath) {
 }
 
 async function loadFile(inFilePath) {
-    core.debug(`Loading file: ${inFilePath}`);
+    logger.debug(`Loading file: ${inFilePath}`);
     const sarifText = await fs.readFile(inFilePath, 'utf-8');
     const sarif = JSON.parse(sarifText);
     return sarif;
@@ -9662,7 +9705,7 @@ module.exports = JSON.parse("{\"nosql injection\":\"nosql injection\",\"sql inje
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");
+module.exports = require("assert");;
 
 /***/ }),
 
@@ -9670,7 +9713,7 @@ module.exports = require("assert");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");
+module.exports = require("events");;
 
 /***/ }),
 
@@ -9678,7 +9721,7 @@ module.exports = require("events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");
+module.exports = require("fs");;
 
 /***/ }),
 
@@ -9686,7 +9729,7 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");
+module.exports = require("http");;
 
 /***/ }),
 
@@ -9694,7 +9737,7 @@ module.exports = require("http");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");
+module.exports = require("https");;
 
 /***/ }),
 
@@ -9702,7 +9745,7 @@ module.exports = require("https");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");
+module.exports = require("net");;
 
 /***/ }),
 
@@ -9710,7 +9753,7 @@ module.exports = require("net");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");
+module.exports = require("os");;
 
 /***/ }),
 
@@ -9718,7 +9761,7 @@ module.exports = require("os");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");
+module.exports = require("path");;
 
 /***/ }),
 
@@ -9726,7 +9769,7 @@ module.exports = require("path");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");
+module.exports = require("stream");;
 
 /***/ }),
 
@@ -9734,7 +9777,7 @@ module.exports = require("stream");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");
+module.exports = require("tls");;
 
 /***/ }),
 
@@ -9742,7 +9785,7 @@ module.exports = require("tls");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");
+module.exports = require("url");;
 
 /***/ }),
 
@@ -9750,7 +9793,7 @@ module.exports = require("url");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");
+module.exports = require("util");;
 
 /***/ }),
 
@@ -9758,7 +9801,7 @@ module.exports = require("util");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");
+module.exports = require("zlib");;
 
 /***/ })
 
