@@ -1,11 +1,12 @@
 "use strict";
 
-const core = require('@actions/core');
 const fs = require('fs').promises;
 const _glob = require('glob');
 const path = require('path');
 const util = require('util');
 const glob = util.promisify(_glob);
+
+const logger = require('./logger');
 
 const regex = new RegExp(/\.sarif$/, 'i');
 
@@ -38,7 +39,7 @@ async function getDirectoryFiles(inDirPath) {
 }
 
 async function loadFile(inFilePath) {
-    core.debug(`Loading file: ${inFilePath}`);
+    logger.debug(`Loading file: ${inFilePath}`);
     const sarifText = await fs.readFile(inFilePath, 'utf-8');
     const sarif = JSON.parse(sarifText);
     return sarif;
