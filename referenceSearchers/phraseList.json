@@ -180,7 +180,7 @@
     "improper restriction of excessive authentication attempts": "improper restriction of excessive authentication attempts",
     "limitation on( the)? number of failed (authentication|login) attempts": "limitation on the number of failed authentication attempts",
     "mass assignment": "mass assignment",
-    "rate limiting": "rate limiting",
+    "(no|insufficient|missing|inadequate) rate limiting": "rate limiting",
     "insufficient data protection": "insufficient data protection",
     "insecure storage on (sdcard|external storage)": "insecure storage on external storage",
     "insecure storage in (plist|xml file)": "insecure storage in plist file",
