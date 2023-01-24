@@ -12,7 +12,7 @@ test('sarifLoader should better load test001 and retrieve version', async () => 
 
 test('sarifLoader should better load fixtures directory and retrieve versions from each file', async () => {
   const sarifs = await sarifLoader.load('./fixtures');
-  expect(sarifs.length).toEqual(6);
+  expect(sarifs.length).toEqual(7);
   for (const sarif of sarifs) {
     expect(sarif.version).toEqual('2.1.0');
   }
@@ -20,7 +20,7 @@ test('sarifLoader should better load fixtures directory and retrieve versions fr
 
 test('sarifLoader should better load fixtures directory with trailing slash and retrieve versions from each file', async () => {
   const sarifs = await sarifLoader.load('./fixtures/');
-  expect(sarifs.length).toEqual(6);
+  expect(sarifs.length).toEqual(7);
   for (const sarif of sarifs) {
     expect(sarif.version).toEqual('2.1.0');
   }

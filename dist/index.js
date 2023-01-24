@@ -1,14 +1,13 @@
-require('./sourcemap-register.js');module.exports =
-/******/ (() => { // webpackBootstrap
+require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 5558:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const fetch = __webpack_require__(467);
+const fetch = __nccwpck_require__(467);
 
 const API_URL_ORIGIN = 'https://integration-api.securecodewarrior.com';
 const API_URL_PATH = '/api/v1/trial';
@@ -38,48 +37,14 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2932:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-const core = __webpack_require__(2186);
-const languageResolver = __webpack_require__(521)
-const logger = __webpack_require__(1517);
-const { run } = __webpack_require__(3401);
-
-async function start() {
-    const inFile = core.getInput('inputSarifFile');
-    const outFile = core.getInput('outputSarifFile');
-
-    logger.setLogger((msg) => core.debug(msg));
-
-    // check if token provided and get language
-    const githubToken = core.getInput('githubToken');
-    let languageKey = null;
-    if (githubToken) {
-        languageKey = await languageResolver.getLanguageFromRepo(githubToken);
-        logger.debug(`Repository language: ${languageKey}`);
-    }
-
-    const onFailure = (message) => core.setFailed(message);
-    run(inFile, outFile, githubToken, languageKey, onFailure);
-}
-
-start();
-
-
-/***/ }),
-
 /***/ 521:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const core = __webpack_require__(2186);
-const github = __webpack_require__(5438);
+const core = __nccwpck_require__(2186);
+const github = __nccwpck_require__(5438);
 
 // get env GITHUB_REPOSITORY (should be something like octocat/Hello-World)
 const githubRepository = process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.split('/');
@@ -151,7 +116,7 @@ module.exports = {
 /***/ 1517:
 /***/ ((module) => {
 
-let logger = null;
+let logger = console.log;
 
 function setLogger(loggerFunction) {
     logger = loggerFunction;
@@ -169,7 +134,7 @@ module.exports = {
 /***/ }),
 
 /***/ 7351:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -181,8 +146,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__webpack_require__(2087));
-const utils_1 = __webpack_require__(5278);
+const os = __importStar(__nccwpck_require__(2087));
+const utils_1 = __nccwpck_require__(5278);
 /**
  * Commands
  *
@@ -255,7 +220,7 @@ function escapeProperty(s) {
 /***/ }),
 
 /***/ 2186:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -276,11 +241,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __webpack_require__(7351);
-const file_command_1 = __webpack_require__(717);
-const utils_1 = __webpack_require__(5278);
-const os = __importStar(__webpack_require__(2087));
-const path = __importStar(__webpack_require__(5622));
+const command_1 = __nccwpck_require__(7351);
+const file_command_1 = __nccwpck_require__(717);
+const utils_1 = __nccwpck_require__(5278);
+const os = __importStar(__nccwpck_require__(2087));
+const path = __importStar(__nccwpck_require__(5622));
 /**
  * The code to exit an action
  */
@@ -364,6 +329,7 @@ exports.getInput = getInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    process.stdout.write(os.EOL);
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
@@ -500,7 +466,7 @@ exports.getState = getState;
 /***/ }),
 
 /***/ 717:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -515,9 +481,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__webpack_require__(5747));
-const os = __importStar(__webpack_require__(2087));
-const utils_1 = __webpack_require__(5278);
+const fs = __importStar(__nccwpck_require__(5747));
+const os = __importStar(__nccwpck_require__(2087));
+const utils_1 = __nccwpck_require__(5278);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -562,14 +528,14 @@ exports.toCommandValue = toCommandValue;
 /***/ }),
 
 /***/ 4087:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Context = void 0;
-const fs_1 = __webpack_require__(5747);
-const os_1 = __webpack_require__(2087);
+const fs_1 = __nccwpck_require__(5747);
+const os_1 = __nccwpck_require__(2087);
 class Context {
     /**
      * Hydrate the context from the environment
@@ -619,7 +585,7 @@ exports.Context = Context;
 /***/ }),
 
 /***/ 5438:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -644,8 +610,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOctokit = exports.context = void 0;
-const Context = __importStar(__webpack_require__(4087));
-const utils_1 = __webpack_require__(3030);
+const Context = __importStar(__nccwpck_require__(4087));
+const utils_1 = __nccwpck_require__(3030);
 exports.context = new Context.Context();
 /**
  * Returns a hydrated octokit ready to use for GitHub Actions
@@ -662,7 +628,7 @@ exports.getOctokit = getOctokit;
 /***/ }),
 
 /***/ 7914:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -687,7 +653,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getApiBaseUrl = exports.getProxyAgent = exports.getAuthString = void 0;
-const httpClient = __importStar(__webpack_require__(9925));
+const httpClient = __importStar(__nccwpck_require__(9925));
 function getAuthString(token, options) {
     if (!token && !options.auth) {
         throw new Error('Parameter token or opts.auth is required');
@@ -712,7 +678,7 @@ exports.getApiBaseUrl = getApiBaseUrl;
 /***/ }),
 
 /***/ 3030:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -737,12 +703,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOctokitOptions = exports.GitHub = exports.context = void 0;
-const Context = __importStar(__webpack_require__(4087));
-const Utils = __importStar(__webpack_require__(7914));
+const Context = __importStar(__nccwpck_require__(4087));
+const Utils = __importStar(__nccwpck_require__(7914));
 // octokit + plugins
-const core_1 = __webpack_require__(6762);
-const plugin_rest_endpoint_methods_1 = __webpack_require__(3044);
-const plugin_paginate_rest_1 = __webpack_require__(4193);
+const core_1 = __nccwpck_require__(6762);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(3044);
+const plugin_paginate_rest_1 = __nccwpck_require__(4193);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
 const defaults = {
@@ -773,15 +739,15 @@ exports.getOctokitOptions = getOctokitOptions;
 /***/ }),
 
 /***/ 9925:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const url = __webpack_require__(8835);
-const http = __webpack_require__(8605);
-const https = __webpack_require__(7211);
-const pm = __webpack_require__(6443);
+const url = __nccwpck_require__(8835);
+const http = __nccwpck_require__(8605);
+const https = __nccwpck_require__(7211);
+const pm = __nccwpck_require__(6443);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -1191,7 +1157,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __webpack_require__(4294);
+                tunnel = __nccwpck_require__(4294);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -1312,12 +1278,12 @@ exports.HttpClient = HttpClient;
 /***/ }),
 
 /***/ 6443:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const url = __webpack_require__(8835);
+const url = __nccwpck_require__(8835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
     let proxyUrl;
@@ -1435,18 +1401,18 @@ exports.createTokenAuth = createTokenAuth;
 /***/ }),
 
 /***/ 6762:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var universalUserAgent = __webpack_require__(5030);
-var beforeAfterHook = __webpack_require__(3682);
-var request = __webpack_require__(6234);
-var graphql = __webpack_require__(8467);
-var authToken = __webpack_require__(334);
+var universalUserAgent = __nccwpck_require__(5030);
+var beforeAfterHook = __nccwpck_require__(3682);
+var request = __nccwpck_require__(6234);
+var graphql = __nccwpck_require__(8467);
+var authToken = __nccwpck_require__(334);
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -1619,15 +1585,15 @@ exports.Octokit = Octokit;
 /***/ }),
 
 /***/ 9440:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var isPlainObject = __webpack_require__(558);
-var universalUserAgent = __webpack_require__(5030);
+var isPlainObject = __nccwpck_require__(558);
+var universalUserAgent = __nccwpck_require__(5030);
 
 function lowercaseKeys(object) {
   if (!object) {
@@ -2050,15 +2016,15 @@ exports.isPlainObject = isPlainObject;
 /***/ }),
 
 /***/ 8467:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var request = __webpack_require__(6234);
-var universalUserAgent = __webpack_require__(5030);
+var request = __nccwpck_require__(6234);
+var universalUserAgent = __nccwpck_require__(5030);
 
 const VERSION = "4.5.6";
 
@@ -3466,7 +3432,7 @@ exports.restEndpointMethods = restEndpointMethods;
 /***/ }),
 
 /***/ 537:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
@@ -3475,8 +3441,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var deprecation = __webpack_require__(8932);
-var once = _interopDefault(__webpack_require__(1223));
+var deprecation = __nccwpck_require__(8932);
+var once = _interopDefault(__nccwpck_require__(1223));
 
 const logOnce = once(deprecation => console.warn(deprecation));
 /**
@@ -3529,7 +3495,7 @@ exports.RequestError = RequestError;
 /***/ }),
 
 /***/ 6234:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
@@ -3538,11 +3504,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var endpoint = __webpack_require__(9440);
-var universalUserAgent = __webpack_require__(5030);
-var isPlainObject = __webpack_require__(9062);
-var nodeFetch = _interopDefault(__webpack_require__(467));
-var requestError = __webpack_require__(537);
+var endpoint = __nccwpck_require__(9440);
+var universalUserAgent = __nccwpck_require__(5030);
+var isPlainObject = __nccwpck_require__(9062);
+var nodeFetch = _interopDefault(__nccwpck_require__(467));
+var requestError = __nccwpck_require__(537);
 
 const VERSION = "5.4.9";
 
@@ -3798,11 +3764,11 @@ function range(a, b, str) {
 /***/ }),
 
 /***/ 3682:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var register = __webpack_require__(4670)
-var addHook = __webpack_require__(5549)
-var removeHook = __webpack_require__(6819)
+var register = __nccwpck_require__(4670)
+var addHook = __nccwpck_require__(5549)
+var removeHook = __nccwpck_require__(6819)
 
 // bind with array of arguments: https://stackoverflow.com/a/21792913
 var bind = Function.bind
@@ -3974,10 +3940,10 @@ function removeHook (state, name, method) {
 /***/ }),
 
 /***/ 3717:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var concatMap = __webpack_require__(6891);
-var balanced = __webpack_require__(9417);
+var concatMap = __nccwpck_require__(6891);
+var balanced = __nccwpck_require__(9417);
 
 module.exports = expandTop;
 
@@ -4230,7 +4196,7 @@ exports.Deprecation = Deprecation;
 /***/ }),
 
 /***/ 6863:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 module.exports = realpath
 realpath.realpath = realpath
@@ -4239,13 +4205,13 @@ realpath.realpathSync = realpathSync
 realpath.monkeypatch = monkeypatch
 realpath.unmonkeypatch = unmonkeypatch
 
-var fs = __webpack_require__(5747)
+var fs = __nccwpck_require__(5747)
 var origRealpath = fs.realpath
 var origRealpathSync = fs.realpathSync
 
 var version = process.version
 var ok = /^v[0-5]\./.test(version)
-var old = __webpack_require__(1734)
+var old = __nccwpck_require__(1734)
 
 function newError (er) {
   return er && er.syscall === 'realpath' && (
@@ -4303,7 +4269,7 @@ function unmonkeypatch () {
 /***/ }),
 
 /***/ 1734:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4326,9 +4292,9 @@ function unmonkeypatch () {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var pathModule = __webpack_require__(5622);
+var pathModule = __nccwpck_require__(5622);
 var isWindows = process.platform === 'win32';
-var fs = __webpack_require__(5747);
+var fs = __nccwpck_require__(5747);
 
 // JavaScript implementation of realpath, ported from node pre-v6
 
@@ -4613,10 +4579,8 @@ exports.realpath = function realpath(p, cache, cb) {
 /***/ }),
 
 /***/ 7625:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-exports.alphasort = alphasort
-exports.alphasorti = alphasorti
 exports.setopts = setopts
 exports.ownProp = ownProp
 exports.makeAbs = makeAbs
@@ -4629,17 +4593,13 @@ function ownProp (obj, field) {
   return Object.prototype.hasOwnProperty.call(obj, field)
 }
 
-var path = __webpack_require__(5622)
-var minimatch = __webpack_require__(3973)
-var isAbsolute = __webpack_require__(8714)
+var path = __nccwpck_require__(5622)
+var minimatch = __nccwpck_require__(3973)
+var isAbsolute = __nccwpck_require__(8714)
 var Minimatch = minimatch.Minimatch
 
-function alphasorti (a, b) {
-  return a.toLowerCase().localeCompare(b.toLowerCase())
-}
-
 function alphasort (a, b) {
-  return a.localeCompare(b)
+  return a.localeCompare(b, 'en')
 }
 
 function setupIgnores (self, options) {
@@ -4767,7 +4727,7 @@ function finish (self) {
     all = Object.keys(all)
 
   if (!self.nosort)
-    all = all.sort(self.nocase ? alphasorti : alphasort)
+    all = all.sort(alphasort)
 
   // at *some* point we statted all of these
   if (self.mark) {
@@ -4860,7 +4820,7 @@ function childrenIgnored (self, path) {
 /***/ }),
 
 /***/ 1957:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Approach:
 //
@@ -4904,27 +4864,25 @@ function childrenIgnored (self, path) {
 
 module.exports = glob
 
-var fs = __webpack_require__(5747)
-var rp = __webpack_require__(6863)
-var minimatch = __webpack_require__(3973)
+var fs = __nccwpck_require__(5747)
+var rp = __nccwpck_require__(6863)
+var minimatch = __nccwpck_require__(3973)
 var Minimatch = minimatch.Minimatch
-var inherits = __webpack_require__(4124)
-var EE = __webpack_require__(8614).EventEmitter
-var path = __webpack_require__(5622)
-var assert = __webpack_require__(2357)
-var isAbsolute = __webpack_require__(8714)
-var globSync = __webpack_require__(9010)
-var common = __webpack_require__(7625)
-var alphasort = common.alphasort
-var alphasorti = common.alphasorti
+var inherits = __nccwpck_require__(4124)
+var EE = __nccwpck_require__(8614).EventEmitter
+var path = __nccwpck_require__(5622)
+var assert = __nccwpck_require__(2357)
+var isAbsolute = __nccwpck_require__(8714)
+var globSync = __nccwpck_require__(9010)
+var common = __nccwpck_require__(7625)
 var setopts = common.setopts
 var ownProp = common.ownProp
-var inflight = __webpack_require__(2492)
-var util = __webpack_require__(1669)
+var inflight = __nccwpck_require__(2492)
+var util = __nccwpck_require__(1669)
 var childrenIgnored = common.childrenIgnored
 var isIgnored = common.isIgnored
 
-var once = __webpack_require__(1223)
+var once = __nccwpck_require__(1223)
 
 function glob (pattern, options, cb) {
   if (typeof options === 'function') cb = options, options = {}
@@ -5657,23 +5615,21 @@ Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
 /***/ }),
 
 /***/ 9010:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 module.exports = globSync
 globSync.GlobSync = GlobSync
 
-var fs = __webpack_require__(5747)
-var rp = __webpack_require__(6863)
-var minimatch = __webpack_require__(3973)
+var fs = __nccwpck_require__(5747)
+var rp = __nccwpck_require__(6863)
+var minimatch = __nccwpck_require__(3973)
 var Minimatch = minimatch.Minimatch
-var Glob = __webpack_require__(1957).Glob
-var util = __webpack_require__(1669)
-var path = __webpack_require__(5622)
-var assert = __webpack_require__(2357)
-var isAbsolute = __webpack_require__(8714)
-var common = __webpack_require__(7625)
-var alphasort = common.alphasort
-var alphasorti = common.alphasorti
+var Glob = __nccwpck_require__(1957).Glob
+var util = __nccwpck_require__(1669)
+var path = __nccwpck_require__(5622)
+var assert = __nccwpck_require__(2357)
+var isAbsolute = __nccwpck_require__(8714)
+var common = __nccwpck_require__(7625)
 var setopts = common.setopts
 var ownProp = common.ownProp
 var childrenIgnored = common.childrenIgnored
@@ -6150,11 +6106,11 @@ GlobSync.prototype._makeAbs = function (f) {
 /***/ }),
 
 /***/ 2492:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var wrappy = __webpack_require__(2940)
+var wrappy = __nccwpck_require__(2940)
 var reqs = Object.create(null)
-var once = __webpack_require__(1223)
+var once = __nccwpck_require__(1223)
 
 module.exports = wrappy(inflight)
 
@@ -6211,16 +6167,16 @@ function slice (args) {
 /***/ }),
 
 /***/ 4124:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 try {
-  var util = __webpack_require__(1669);
+  var util = __nccwpck_require__(1669);
   /* istanbul ignore next */
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __webpack_require__(8544);
+  module.exports = __nccwpck_require__(8544);
 }
 
 
@@ -6261,18 +6217,18 @@ if (typeof Object.create === 'function') {
 /***/ }),
 
 /***/ 3973:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 module.exports = minimatch
 minimatch.Minimatch = Minimatch
 
 var path = { sep: '/' }
 try {
-  path = __webpack_require__(5622)
+  path = __nccwpck_require__(5622)
 } catch (er) {}
 
 var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {}
-var expand = __webpack_require__(3717)
+var expand = __nccwpck_require__(3717)
 
 var plTypes = {
   '!': { open: '(?:(?!(?:', close: '))[^/]*?)'},
@@ -7191,7 +7147,7 @@ function regExpEscape (s) {
 /***/ }),
 
 /***/ 467:
-/***/ ((module, exports, __webpack_require__) => {
+/***/ ((module, exports, __nccwpck_require__) => {
 
 "use strict";
 
@@ -7200,11 +7156,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var Stream = _interopDefault(__webpack_require__(2413));
-var http = _interopDefault(__webpack_require__(8605));
-var Url = _interopDefault(__webpack_require__(8835));
-var https = _interopDefault(__webpack_require__(7211));
-var zlib = _interopDefault(__webpack_require__(8761));
+var Stream = _interopDefault(__nccwpck_require__(2413));
+var http = _interopDefault(__nccwpck_require__(8605));
+var Url = _interopDefault(__nccwpck_require__(8835));
+var https = _interopDefault(__nccwpck_require__(7211));
+var zlib = _interopDefault(__nccwpck_require__(8761));
 
 // Based on https://github.com/tmpvar/jsdom/blob/aa85b2abf07766ff7bf5c1f6daafb3726f2f2db5/lib/jsdom/living/blob.js
 
@@ -7355,7 +7311,7 @@ FetchError.prototype.name = 'FetchError';
 
 let convert;
 try {
-	convert = __webpack_require__(2877).convert;
+	convert = __nccwpck_require__(2877).convert;
 } catch (e) {}
 
 const INTERNALS = Symbol('Body internals');
@@ -8848,9 +8804,9 @@ exports.FetchError = FetchError;
 /***/ }),
 
 /***/ 1223:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var wrappy = __webpack_require__(2940)
+var wrappy = __nccwpck_require__(2940)
 module.exports = wrappy(once)
 module.exports.strict = wrappy(onceStrict)
 
@@ -8925,26 +8881,26 @@ module.exports.win32 = win32;
 /***/ }),
 
 /***/ 4294:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __webpack_require__(4219);
+module.exports = __nccwpck_require__(4219);
 
 
 /***/ }),
 
 /***/ 4219:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var net = __webpack_require__(1631);
-var tls = __webpack_require__(4016);
-var http = __webpack_require__(8605);
-var https = __webpack_require__(7211);
-var events = __webpack_require__(8614);
-var assert = __webpack_require__(2357);
-var util = __webpack_require__(1669);
+var net = __nccwpck_require__(1631);
+var tls = __nccwpck_require__(4016);
+var http = __nccwpck_require__(8605);
+var https = __nccwpck_require__(7211);
+var events = __nccwpck_require__(8614);
+var assert = __nccwpck_require__(2357);
+var util = __nccwpck_require__(1669);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -9302,12 +9258,12 @@ module.exports = {
 /***/ }),
 
 /***/ 6:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const phraseList = __webpack_require__(244);
+const phraseList = __nccwpck_require__(244);
 
 function search(text) {
     const matches = [];
@@ -9334,16 +9290,16 @@ module.exports = {
 /***/ }),
 
 /***/ 3401:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // const core = require('@actions/core');
-const fs = __webpack_require__(5747).promises;
-const _fs = __webpack_require__(5747);
+const fs = __nccwpck_require__(5747).promises;
+const _fs = __nccwpck_require__(5747);
 
-const sarifLoader = __webpack_require__(5787);
-const resultProcessor = __webpack_require__(4885);
-const ruleProcessor = __webpack_require__(5732);
-const logger = __webpack_require__(1517);
+const sarifLoader = __nccwpck_require__(5787);
+const resultProcessor = __nccwpck_require__(4885);
+const ruleProcessor = __nccwpck_require__(5732);
+const logger = __nccwpck_require__(1517);
 
 const OUTPUT_DIR = 'processed-sarifs';
 
@@ -9351,14 +9307,14 @@ async function writeOutputFile(outFilename, data) {
     await fs.writeFile(outFilename, data, 'utf8');
 }
 
-async function run(inFile, outFile, githubToken, languageKey, onFailure) {
+async function run(inFile, outFile, languageKey, onFailure) {
     try {
         const pathType = await sarifLoader.getPathType(inFile);
         let fileCount = 1;
         logger.debug(`Input path type: ${pathType}`);
 
         if (pathType !== 'file') {
-            const exists = await _fs.existsSync(OUTPUT_DIR);
+            const exists = _fs.existsSync(OUTPUT_DIR);
             if (!exists) {
                 await fs.mkdir(OUTPUT_DIR);
             }
@@ -9368,7 +9324,7 @@ async function run(inFile, outFile, githubToken, languageKey, onFailure) {
         // load SARIF file from input location
         const sarifs = await sarifLoader.load(inFile);
         for (const sarif of sarifs) {
-            logger.debug(JSON.stringify(sarif, null, 4));
+            // logger.debug(JSON.stringify(sarif, null, 4));
 
             // process each run
             if (sarif && sarif.runs) {
@@ -9383,7 +9339,7 @@ async function run(inFile, outFile, githubToken, languageKey, onFailure) {
 
             // write SARIF file to output location
             const outputData = JSON.stringify(sarif);
-            logger.debug(JSON.stringify(sarif, null, 4));
+            // logger.debug(JSON.stringify(sarif, null, 4));
 
             if (pathType === 'file') {
                 logger.debug(`Writing file: ${outFile}`);
@@ -9411,18 +9367,18 @@ module.exports = {
 /***/ }),
 
 /***/ 5787:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const fs = __webpack_require__(5747).promises;
-const _glob = __webpack_require__(1957);
-const path = __webpack_require__(5622);
-const util = __webpack_require__(1669);
+const fs = __nccwpck_require__(5747).promises;
+const _glob = __nccwpck_require__(1957);
+const path = __nccwpck_require__(5622);
+const util = __nccwpck_require__(1669);
 const glob = util.promisify(_glob);
 
-const logger = __webpack_require__(1517);
+const logger = __nccwpck_require__(1517);
 
 const regex = new RegExp(/\.sarif$/, 'i');
 
@@ -9508,18 +9464,19 @@ module.exports = {
 
 
 function addTextAndMarkdown(helpObj, textToAdd, markdownToAdd) {
-    if (helpObj && !helpObj.text && !helpObj.markdown) {
-        helpObj.text = textToAdd;
-        helpObj.markdown = markdownToAdd;
-        return;
-    }
-
+    // This will blindly add to both text and markdown but the help object supplied will always have both
     if (helpObj && helpObj.text) {
         helpObj.text += `\n\n${textToAdd}`;
+    }
+    else if (helpObj && !helpObj.text) {
+        helpObj.text = textToAdd;
     }
 
     if (helpObj && helpObj.markdown) {
         helpObj.markdown += `\n\n${markdownToAdd}`;
+    }
+    else if (helpObj && !helpObj.markdown) {
+        helpObj.markdown = markdownToAdd;
     }
 }
 
@@ -9583,16 +9540,16 @@ module.exports = {
 /***/ }),
 
 /***/ 5732:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const cweSearcher = __webpack_require__(9541);
-const directLinking = __webpack_require__(5558);
-const helpProcessor = __webpack_require__(7470);
-const textObjectProcessor = __webpack_require__(1081);
-const phraseSearcher = __webpack_require__(6);
+const cweSearcher = __nccwpck_require__(9541);
+const directLinking = __nccwpck_require__(5558);
+const helpProcessor = __nccwpck_require__(7470);
+const textObjectProcessor = __nccwpck_require__(1081);
+const phraseSearcher = __nccwpck_require__(6);
 
 async function process(run, languageKey, triggeredRules) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
@@ -9644,7 +9601,14 @@ async function process(run, languageKey, triggeredRules) {
                         continue;
                     }
 
-                    if (!rule.help) rule.help = {};
+                    if (!rule.help) rule.help = {
+                        // if `help` is not present but fullDescription is present
+                        // init `help` with `fullDescription` to avoid overwriting the displayed description
+                        // for `markdown` fallback to `text` if there is no `fullDescription.markdown`
+                        // for `text` fallback to "No description" if there is no `fullDescription.text`
+                        text: (rule.fullDescription && rule.fullDescription.text) || '',
+                        markdown: (rule.fullDescription && (rule.fullDescription.markdown || rule.fullDescription.text)) || ''
+                    };
 
                     if (!isShown) {
                         isShown = true;
@@ -9697,7 +9661,7 @@ module.exports = eval("require")("encoding");
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"nosql injection\":\"nosql injection\",\"sql injection\":\"sql injection\",\"sqli\":\"sqli\",\"code injection\":\"code injection\",\"external entity injection\":\"external entity injection\",\"xxe\":\"xxe\",\"http injection\":\"http injection\",\"header injection\":\"header injection\",\"response splitting\":\"response splitting\",\"cr.?lf injection\":\"cr-lf injection\",\"ldap injection\":\"ldap injection\",\"ldap query (incorporating|including) untrusted data\":\"ldap query incorporating untrusted data\",\"(os )?command injection\":\"os command injection\",\"argument injection\":\"argument injection\",\"path traversal\":\"path traversal\",\"directory traversal\":\"directory traversal\",\"local file inclusion\":\"local file inclusion\",\"remote file inclusion\":\"remote file inclusion\",\"cross.site script inclusion\":\"cross-site script inclusion\",\"xml injection\":\"xml injection\",\"xpath injection\":\"xpath injection\",\"xquery injection\":\"xquery injection\",\"email injection\":\"email injection\",\"deserialization of untrusted data\":\"deserialization of untrusted data\",\"deserialization attack\":\"deserialization attack\",\"(insecure|unsafe|insecure|untrusted) deserialization\":\"insecure deserialization\",\"log forging\":\"log forging\",\"log injection\":\"log injection\",\"resource injection\":\"resource injection\",\"link injection\":\"link injection\",\"css injection\":\"css injection\",\"(weak|improper|missing|broken) input validation\":\"weak input validation\",\"injection attack\":\"injection attack\",\"(improper|insecure|insufficient|broken)( user)? authentication\":\"insecure authentication\",\"lack of sufficient authentication\":\"lack of sufficient authentication\",\"able to login without valid username and password\":\"able to login without valid username and password\",\"api does not validate( the)? authentication token\":\"api does not validate authentication token\",\"authentication bypass\":\"authentication bypass\",\"no authentication\":\"no authentication\",\"missing authentication\":\"missing authentication\",\"forceful browsing\":\"forceful browsing\",\"username enumeration\":\"username enumeration\",\"account enumeration\":\"account enumeration\",\"password enumeration\":\"password enumeration\",\"insufficiently protected credentials\":\"insufficiently protected credentials\",\"weak password policy\":\"weak password policy\",\"(insecure|improper|broken) password change\":\"insecure password change\",\"(insecure|improper|broken) change password\":\"insecure change password\",\"insecure password reset\":\"insecure password reset\",\"insecure forgot(ten)? password\":\"insecure forgot password\",\"insufficient session expiration\":\"insufficient session expiration\",\"failure to invalidate sessions\":\"failure to invalidate sessions\",\"improper session invalidation\":\"improper session invalidation\",\"weak session token\":\"weak session token\",\"insufficient session identifier length\":\"insufficient session identifier length\",\"exposed session token\":\"exposed session token\",\"(improper|insecure) session handling\":\"insecure session handling\",\"cross.site request forgery\":\"cross-site request forgery\",\"csrf\":\"csrf\",\"(insecure|weak) cryptographic (algorithm|cipher|hash)\":\"weak cryptographic algorithm\",\"(insecure|weak) (algorithm|cipher|hash)\":\"weak algorithm\",\"(insecure|weak) encryption\":\"weak encryption\",\"64.bit( block)?( size)? cipher\":\"64-bit block size cipher\",\"ecb mode\":\"ecb mode\",\"exposed cryptographic key\":\"exposed cryptographic key\",\"crypto keys are available in local storage\":\"crypto keys are available in local storage\",\"padding oracle\":\"padding oracle\",\"encryption oracle\":\"encryption oracle\",\"decryption oracle\":\"decryption oracle\",\"insecure randomness\":\"insecure randomness\",\"application implements cryptography insecurely\":\"application implements cryptography insecurely\",\"plaintext storage of password\":\"plaintext storage of password\",\"plaintext password storage\":\"plaintext password storage\",\"cleartext storage of password\":\"cleartext storage of password\",\"cleartext password storage\":\"cleartext password storage\",\"password in (clear|plain).?text\":\"password in cleartext\",\"plaintext storage of sensitive information\":\"plaintext storage of sensitive information\",\"plaintext storage of sensitive data\":\"plaintext storage of sensitive data\",\"cleartext storage of sensitive information\":\"cleartext storage of sensitive information\",\"cleartext storage of sensitive data\":\"cleartext storage of sensitive data\",\"sensitive (data|information) stored insecurely\":\"sensitive information stored insecurely\",\"exposed in (clear|plain).?text\":\"exposed in cleartext\",\"insecure data storage\":\"insecure data storage\",\"no adequate protection o(f|n) sensitive (data|information)\":\"inadequate protection of sensitive information\",\"inadequate protection o(f|n) sensitive (data|information)\":\"inadequate protection of sensitive information\",\"no protection o(f|n) sensitive (data|information)\":\"inadequate protection of sensitive information\",\"missing encryption\":\"missing encryption\",\"(improper|insecure|insufficient) (authorization|authorisation|access control)\":\"insufficient access control\",\"(authorization|authorisation|access control) issues\":\"access control issues\",\"broken (authorization|authorisation|access control)\":\"broken access control\",\"missing (authorization|authorisation|access control)\":\"missing access control\",\"lack of sufficient (authorization|authorisation|access control)\":\"lack of sufficient access control\",\"insecure direct object reference\":\"insecure direct object reference\",\"missing function level (authorization|authorisation|access control)\":\"missing function level access control\",\"broken function level (authorization|authorisation|access control)\":\"broken function level access control\",\"missing object level (authorization|authorisation|access control)\":\"missing object level access control\",\"broken object level (authorization|authorisation|access control)\":\"broken object level access control\",\"using input from untrusted source\":\"using input from untrusted source\",\"buffer overflow\":\"buffer overflow\",\"double free\":\"double free\",\"stack overflow\":\"stack overflow\",\"heap overflow\":\"heap overflow\",\"heap.?based buffer overflow\":\"heap-based buffer overflow\",\"null dereference\":\"null dereference\",\"integer overflow\":\"integer overflow\",\"use.after.free\":\"use-after-free\",\"type confusion\":\"type confusion\",\"illegal pointer value\":\"illegal pointer value\",\"uninitialized variable\":\"uninitialized variable\",\"race condition\":\"race condition\",\"unprotected transport of credentials\":\"unprotected transport of credentials\",\"unprotected transport of password\":\"unprotected transport of password\",\"unprotected transport of sensitive (data|information)\":\"unprotected transport of sensitive information\",\"mixed content\":\"mixed content\",\"mixed http content\":\"mixed http content\",\"html5 cross-origin resource sharing - unencrypted origin\":\"html5 cross-origin resource sharing - unencrypted origin\",\"insecure communication\":\"insecure communication\",\"insecure http transport\":\"insecure http transport\",\"weak protocol\":\"weak protocol\",\"support for tlsv1.0\":\"support for tlsv1.0\",\"old(er)? version of tls supported\":\"older version of tls supported\",\"old(er)? version tls supported\":\"older version of tls supported\",\"error details (displayed|shown)\":\"error details displayed\",\"descriptive error message\":\"descriptive error message\",\"system information exposed\":\"system information exposed\",\"debug information (displayed|shown)\":\"debug information displayed\",\"unintended data leakage via debugging logic\":\"unintended data leakage via debugging logic\",\"sensitive (data|information) (expose|exposure)\":\"sensitive information exposure\",\"email disclosure\":\"email disclosure\",\"username disclosure\":\"username disclosure\",\"information (disclosure|exposure|leakage)\":\"information disclosure\",\"click ?jack\":\"clickjack\",\"disabled security feature\":\"disabled security feature\",\"debug features? enabled\":\"debug feature enabled\",\"debug mode enabled\":\"debug mode enabled\",\"known vulnerable component\":\"known vulnerable component\",\"outdated (library|libraries)\":\"outdated library\",\"vulnerable (library|libraries)\":\"vulnerable library\",\"framework with known (issues|vulnerabilities)\":\"framework with known vulnerabilities\",\"multiple vulnerabilities in\":\"multiple vulnerabilities in\",\"components? from untrusted source\":\"component from untrusted source\",\"(third|3rd).party javascript include\":\"third-party javascript include\",\"html5 cross-origin resource sharing - third-party origin\":\"html5 cross-origin resource sharing - third-party origin\",\"subresource integrity\":\"subresource integrity\",\"unvalidated (redirect|forward)\":\"unvalidated redirect\",\"open (redirect|forward)\":\"open redirect\",\"stored xss\":\"stored xss\",\"stored cross.site.scripting\":\"stored cross-site scripting\",\"persistent xss\":\"persistent xss\",\"persistent cross.site.scripting\":\"persistent cross-site scripting\",\"reflected xss\":\"reflected xss\",\"reflected cross.site.scripting\":\"reflected cross-site scripting\",\"dom(.based)? xss\":\"dom-based xss\",\"dom(.based)? cross.site.scripting\":\"dom-based cross-site scripting\",\"html injection\":\"html injection\",\"mixed server and client side rendering\":\"mixed server and client side rendering\",\"xss\":\"xss\",\"cross.site.scripting\":\"cross-site scripting\",\"business logic (abuse|bypass|flaw)\":\"business logic bypass\",\"timing attack\":\"timing attack\",\"keyboard caching\":\"keyboard caching\",\"clipboard buffer caching\":\"clipboard buffer caching\",\"http cacheable response\":\"http cacheable response\",\"file upload vulnerability\":\"file upload vulnerability\",\"malicious file upload\":\"malicious file upload\",\"(regular expression|regex) (dos|denial.of.service)\":\"regular expression denial of service\",\"failure to release resource\":\"failure to release resource\",\"routing (dos|denial.of.service)\":\"routing denial of service\",\"denial.of.service\":\"denial of service\",\"insufficient (logging|monitoring)\":\"insufficient logging\",\"server.side request forgery\":\"server-side request forgery\",\"ssrf\":\"ssrf\",\"insufficient anti.?automation\":\"insufficient anti-automation\",\"missing anti.?automation\":\"missing anti-automation\",\"captcha bypass\":\"captcha bypass\",\"(improper|broken|insecure) captcha\":\"insecure captcha\",\"(insecure|insufficient) account lock.?out\":\"insufficient account lockout\",\"lack of account lock.?out\":\"lack of account lockout\",\"improper restriction of excessive authentication attempts\":\"improper restriction of excessive authentication attempts\",\"limitation on( the)? number of failed (authentication|login) attempts\":\"limitation on the number of failed authentication attempts\",\"mass assignment\":\"mass assignment\",\"rate limiting\":\"rate limiting\",\"insufficient data protection\":\"insufficient data protection\",\"insecure storage on (sdcard|external storage)\":\"insecure storage on external storage\",\"insecure storage in (plist|xml file)\":\"insecure storage in plist file\",\"(property list|plist) file\":\"plist file\",\"insecure storage in sqlite\":\"insecure storage in sqlite\",\"certificate pinning\":\"certificate pinning\",\"application does not validate ssl certificates\":\"application does not validate ssl certificates\",\"app(lication)? background(ing)? screenshot\":\"application backgrounding screenshot\",\"insecure logging of user data\":\"insecure logging of user data\",\"storing credentials (with|for) .?remember me.?\":\"storing credentials for remember me\",\"use of spoofable parameters for authentication\":\"use of spoofable parameters for authentication\",\"client.side authentication\":\"client-side authentication\",\"hard.?coded api key\":\"hard-coded api key\",\"misuse of fingerprint\":\"misuse of fingerprint\",\"hard.?coded (key|credential|password)\":\"hard-coded credential\",\"aes key( are|is)? hardcoded in mobile client\":\"aes key hardcoded in mobile client\",\"aes.gcm without aad mode enforced\":\"aes-gcm without aad mode enforced\",\"insecure use of java.util.random\":\"insecure use of java.util.random\",\"private key stored without password protection\":\"private key stored without password protection\",\"code obfuscation\":\"code obfuscation\",\"protection from debugger\":\"protection from debugger\",\"debugger protection\":\"debugger protection\",\"protection from runtime injection\":\"protection from runtime injection\",\"runtime injection protection\":\"runtime injection protection\",\"position.independent.(code|executable)\":\"position independent executable\",\"lack of binary protection\":\"lack of binary protection\",\"tap.?jacking\":\"tap-jacking\",\"webview settings\":\"webview settings\",\"incorrect activity configuration\":\"incorrect activity configuration\",\"insecure use of pasteboard\":\"insecure use of pasteboard\",\"misuse of url scheme\":\"misuse of url scheme\",\"url scheme with unspecified role\":\"url scheme with unspecified role\",\"misuse of intent\":\"misuse of intent\",\"misuse of broadcast receiver\":\"misuse of broadcast receiver\",\"misuse of keychain\":\"misuse of keychain\",\"improper platform usage\":\"improper platform usage\",\"debug symbols and developer build directories disclosed\":\"debug symbols and developer build directories disclosed\",\"emulation detection\":\"emulation detection\"}");
+module.exports = JSON.parse('{"nosql injection":"nosql injection","sql injection":"sql injection","sqli":"sqli","code injection":"code injection","external entity injection":"external entity injection","xxe":"xxe","http injection":"http injection","header injection":"header injection","response splitting":"response splitting","cr.?lf injection":"cr-lf injection","ldap injection":"ldap injection","ldap query (incorporating|including) untrusted data":"ldap query incorporating untrusted data","(os )?command injection":"os command injection","argument injection":"argument injection","path traversal":"path traversal","directory traversal":"directory traversal","local file inclusion":"local file inclusion","remote file inclusion":"remote file inclusion","cross.site script inclusion":"cross-site script inclusion","xml injection":"xml injection","xpath injection":"xpath injection","xquery injection":"xquery injection","email injection":"email injection","deserialization of untrusted data":"deserialization of untrusted data","deserialization attack":"deserialization attack","(insecure|unsafe|insecure|untrusted) deserialization":"insecure deserialization","log forging":"log forging","log injection":"log injection","resource injection":"resource injection","link injection":"link injection","css injection":"css injection","(weak|improper|missing|broken) input validation":"weak input validation","injection attack":"injection attack","(improper|insecure|insufficient|broken)( user)? authentication":"insecure authentication","lack of sufficient authentication":"lack of sufficient authentication","able to login without valid username and password":"able to login without valid username and password","api does not validate( the)? authentication token":"api does not validate authentication token","authentication bypass":"authentication bypass","no authentication":"no authentication","missing authentication":"missing authentication","forceful browsing":"forceful browsing","username enumeration":"username enumeration","account enumeration":"account enumeration","password enumeration":"password enumeration","insufficiently protected credentials":"insufficiently protected credentials","weak password policy":"weak password policy","(insecure|improper|broken) password change":"insecure password change","(insecure|improper|broken) change password":"insecure change password","insecure password reset":"insecure password reset","insecure forgot(ten)? password":"insecure forgot password","insufficient session expiration":"insufficient session expiration","failure to invalidate sessions":"failure to invalidate sessions","improper session invalidation":"improper session invalidation","weak session token":"weak session token","insufficient session identifier length":"insufficient session identifier length","exposed session token":"exposed session token","(improper|insecure) session handling":"insecure session handling","cross.site request forgery":"cross-site request forgery","csrf":"csrf","(insecure|weak) cryptographic (algorithm|cipher|hash)":"weak cryptographic algorithm","(insecure|weak) (algorithm|cipher|hash)":"weak algorithm","(insecure|weak) encryption":"weak encryption","64.bit( block)?( size)? cipher":"64-bit block size cipher","ecb mode":"ecb mode","exposed cryptographic key":"exposed cryptographic key","crypto keys are available in local storage":"crypto keys are available in local storage","padding oracle":"padding oracle","encryption oracle":"encryption oracle","decryption oracle":"decryption oracle","insecure randomness":"insecure randomness","application implements cryptography insecurely":"application implements cryptography insecurely","plaintext storage of password":"plaintext storage of password","plaintext password storage":"plaintext password storage","cleartext storage of password":"cleartext storage of password","cleartext password storage":"cleartext password storage","password in (clear|plain).?text":"password in cleartext","plaintext storage of sensitive information":"plaintext storage of sensitive information","plaintext storage of sensitive data":"plaintext storage of sensitive data","cleartext storage of sensitive information":"cleartext storage of sensitive information","cleartext storage of sensitive data":"cleartext storage of sensitive data","sensitive (data|information) stored insecurely":"sensitive information stored insecurely","exposed in (clear|plain).?text":"exposed in cleartext","insecure data storage":"insecure data storage","no adequate protection o(f|n) sensitive (data|information)":"inadequate protection of sensitive information","inadequate protection o(f|n) sensitive (data|information)":"inadequate protection of sensitive information","no protection o(f|n) sensitive (data|information)":"inadequate protection of sensitive information","missing encryption":"missing encryption","(improper|insecure|insufficient) (authorization|authorisation|access control)":"insufficient access control","(authorization|authorisation|access control) issues":"access control issues","broken (authorization|authorisation|access control)":"broken access control","missing (authorization|authorisation|access control)":"missing access control","lack of sufficient (authorization|authorisation|access control)":"lack of sufficient access control","insecure direct object reference":"insecure direct object reference","missing function level (authorization|authorisation|access control)":"missing function level access control","broken function level (authorization|authorisation|access control)":"broken function level access control","missing object level (authorization|authorisation|access control)":"missing object level access control","broken object level (authorization|authorisation|access control)":"broken object level access control","using input from untrusted source":"using input from untrusted source","buffer overflow":"buffer overflow","double free":"double free","stack overflow":"stack overflow","heap overflow":"heap overflow","heap.?based buffer overflow":"heap-based buffer overflow","null dereference":"null dereference","integer overflow":"integer overflow","use.after.free":"use-after-free","type confusion":"type confusion","illegal pointer value":"illegal pointer value","uninitialized variable":"uninitialized variable","race condition":"race condition","unprotected transport of credentials":"unprotected transport of credentials","unprotected transport of password":"unprotected transport of password","unprotected transport of sensitive (data|information)":"unprotected transport of sensitive information","mixed content":"mixed content","mixed http content":"mixed http content","html5 cross-origin resource sharing - unencrypted origin":"html5 cross-origin resource sharing - unencrypted origin","insecure communication":"insecure communication","insecure http transport":"insecure http transport","weak protocol":"weak protocol","support for tlsv1.0":"support for tlsv1.0","old(er)? version of tls supported":"older version of tls supported","old(er)? version tls supported":"older version of tls supported","error details (displayed|shown)":"error details displayed","descriptive error message":"descriptive error message","system information exposed":"system information exposed","debug information (displayed|shown)":"debug information displayed","unintended data leakage via debugging logic":"unintended data leakage via debugging logic","sensitive (data|information) (expose|exposure)":"sensitive information exposure","email disclosure":"email disclosure","username disclosure":"username disclosure","information (disclosure|exposure|leakage)":"information disclosure","click ?jack":"clickjack","disabled security feature":"disabled security feature","debug features? enabled":"debug feature enabled","debug mode enabled":"debug mode enabled","known vulnerable component":"known vulnerable component","outdated (library|libraries)":"outdated library","vulnerable (library|libraries)":"vulnerable library","framework with known (issues|vulnerabilities)":"framework with known vulnerabilities","multiple vulnerabilities in":"multiple vulnerabilities in","components? from untrusted source":"component from untrusted source","(third|3rd).party javascript include":"third-party javascript include","html5 cross-origin resource sharing - third-party origin":"html5 cross-origin resource sharing - third-party origin","subresource integrity":"subresource integrity","unvalidated (redirect|forward)":"unvalidated redirect","open (redirect|forward)":"open redirect","stored xss":"stored xss","stored cross.site.scripting":"stored cross-site scripting","persistent xss":"persistent xss","persistent cross.site.scripting":"persistent cross-site scripting","reflected xss":"reflected xss","reflected cross.site.scripting":"reflected cross-site scripting","dom(.based)? xss":"dom-based xss","dom(.based)? cross.site.scripting":"dom-based cross-site scripting","html injection":"html injection","mixed server and client side rendering":"mixed server and client side rendering","xss":"xss","cross.site.scripting":"cross-site scripting","business logic (abuse|bypass|flaw)":"business logic bypass","timing attack":"timing attack","keyboard caching":"keyboard caching","clipboard buffer caching":"clipboard buffer caching","http cacheable response":"http cacheable response","file upload vulnerability":"file upload vulnerability","malicious file upload":"malicious file upload","(regular expression|regex) (dos|denial.of.service)":"regular expression denial of service","failure to release resource":"failure to release resource","routing (dos|denial.of.service)":"routing denial of service","denial.of.service":"denial of service","insufficient (logging|monitoring)":"insufficient logging","server.side request forgery":"server-side request forgery","ssrf":"ssrf","insufficient anti.?automation":"insufficient anti-automation","missing anti.?automation":"missing anti-automation","captcha bypass":"captcha bypass","(improper|broken|insecure) captcha":"insecure captcha","(insecure|insufficient) account lock.?out":"insufficient account lockout","lack of account lock.?out":"lack of account lockout","improper restriction of excessive authentication attempts":"improper restriction of excessive authentication attempts","limitation on( the)? number of failed (authentication|login) attempts":"limitation on the number of failed authentication attempts","mass assignment":"mass assignment","(no|insufficient|missing|inadequate) rate limiting":"rate limiting","insufficient data protection":"insufficient data protection","insecure storage on (sdcard|external storage)":"insecure storage on external storage","insecure storage in (plist|xml file)":"insecure storage in plist file","(property list|plist) file":"plist file","insecure storage in sqlite":"insecure storage in sqlite","certificate pinning":"certificate pinning","application does not validate ssl certificates":"application does not validate ssl certificates","app(lication)? background(ing)? screenshot":"application backgrounding screenshot","insecure logging of user data":"insecure logging of user data","storing credentials (with|for) .?remember me.?":"storing credentials for remember me","use of spoofable parameters for authentication":"use of spoofable parameters for authentication","client.side authentication":"client-side authentication","hard.?coded api key":"hard-coded api key","misuse of fingerprint":"misuse of fingerprint","hard.?coded (key|credential|password)":"hard-coded credential","aes key( are|is)? hardcoded in mobile client":"aes key hardcoded in mobile client","aes.gcm without aad mode enforced":"aes-gcm without aad mode enforced","insecure use of java.util.random":"insecure use of java.util.random","private key stored without password protection":"private key stored without password protection","code obfuscation":"code obfuscation","protection from debugger":"protection from debugger","debugger protection":"debugger protection","protection from runtime injection":"protection from runtime injection","runtime injection protection":"runtime injection protection","position.independent.(code|executable)":"position independent executable","lack of binary protection":"lack of binary protection","tap.?jacking":"tap-jacking","webview settings":"webview settings","incorrect activity configuration":"incorrect activity configuration","insecure use of pasteboard":"insecure use of pasteboard","misuse of url scheme":"misuse of url scheme","url scheme with unspecified role":"url scheme with unspecified role","misuse of intent":"misuse of intent","misuse of broadcast receiver":"misuse of broadcast receiver","misuse of keychain":"misuse of keychain","improper platform usage":"improper platform usage","debug symbols and developer build directories disclosed":"debug symbols and developer build directories disclosed","emulation detection":"emulation detection"}');
 
 /***/ }),
 
@@ -9811,10 +9775,11 @@ module.exports = require("zlib");;
 /******/ 	var __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+/******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -9826,7 +9791,7 @@ module.exports = require("zlib");;
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
-/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
 /******/ 			threw = false;
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
@@ -9839,11 +9804,41 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	__webpack_require__.ab = __dirname + "/";/************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(2932);
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+
+
+const core = __nccwpck_require__(2186);
+const languageResolver = __nccwpck_require__(521)
+const logger = __nccwpck_require__(1517);
+const { run } = __nccwpck_require__(3401);
+
+async function start() {
+    const inFile = core.getInput('inputSarifFile');
+    const outFile = core.getInput('outputSarifFile');
+
+    logger.setLogger((msg) => core.debug(msg));
+    const onFailure = (message) => core.setFailed(message);
+
+    // check if token provided and get language
+    const githubToken = core.getInput('githubToken');
+    let languageKey = null;
+    if (githubToken) {
+        languageKey = await languageResolver.getLanguageFromRepo(githubToken);
+        logger.debug(`Repository language: ${languageKey}`);
+    }
+
+    run(inFile, outFile, githubToken, languageKey, onFailure);
+}
+
+start();
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map

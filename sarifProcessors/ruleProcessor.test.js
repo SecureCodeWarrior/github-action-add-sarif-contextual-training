@@ -71,7 +71,8 @@ test('ruleProcessor should load test002 and add contextual micro-learning materi
                 "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
             },
             "help": {
-                "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 89] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+                "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 89] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+                "markdown": `## Build your secure coding skills and defend your code\n\n#### [CWE 89] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
             }
         });
 
@@ -236,3 +237,161 @@ test('ruleProcessor should load test005 and add 6 entries based on the rule id, 
         });
     }
 });
+
+test('ruleProcessor should load test006 and appropriately handle missing help object and fallback to markdown/text fullDescription', async () => {
+    const sarifs = await sarifLoader.load('./fixtures/test006.sarif');
+    const NAME = 'AAA';
+    const DESCRIPTION = 'bbb';
+    const URL = 'ccc';
+    const VIDEOS = ['ddd'];
+    directLinking.getTrainingData.mockResolvedValue({
+        name: NAME,
+        description: DESCRIPTION,
+        url: URL,
+        videos: VIDEOS
+    });
+
+    for (const sarif of sarifs) {
+        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+            ['TEST01', true],
+            ['TEST02', true],
+            ['TEST03', true],
+            ['TEST04', true],
+            ['TEST05', true]
+        ]));
+
+        // TEST01 expect material added to help.text and help.markdown (normal case)
+        expect(sarif.runs[0].tool.driver.rules[0]).toEqual({
+            "id": "TEST01",
+            "name": "Test 01 rule name cwe: 23",
+            "messageStrings": {
+                "default": {
+                    "text": "This is the message text. It might be very long."
+                }
+            },
+            "shortDescription": {
+                "text": "short description"
+            },
+            "fullDescription": {
+                "markdown": "full description markdown",
+                "text": "full description text"
+            },
+            "help": {
+                "markdown": "markdown version some link [here](https://github.com)\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 23] AAA *[What is this? (2min video)](ddd)*\n\n* bbb [Try this challenge in Secure Code Warrior](ccc)",
+                "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 23] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+            },
+            "properties": {
+                "tags": [
+                    "Tag A"
+                ]
+            }
+        });
+
+        // TEST02 expect material added to empty help.text and help.markdown
+        expect(sarif.runs[0].tool.driver.rules[1]).toEqual({
+            "id": "TEST02",
+            "name": "Test 02 rule name",
+            "messageStrings": {
+                "default": {
+                    "text": "This is the message text. It might be very long."
+                }
+            },
+            "shortDescription": {
+                "text": "short description"
+            },
+            "fullDescription": {
+                "markdown": "full description markdown",
+                "text": "full description text"
+            },
+            "help": {
+                "markdown": "## Build your secure coding skills and defend your code\n\n#### [CWE 94] AAA *[What is this? (2min video)](ddd)*\n\n* bbb [Try this challenge in Secure Code Warrior](ccc)",
+                "text": `Build your secure coding skills and defend your code:\n\n[CWE 94] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+            },
+            "properties": {
+                "tags": [
+                    "CWE 94"
+                ]
+            }
+        });
+
+        // TEST03 expect fullDescription used to init help object and then material appended
+        expect(sarif.runs[0].tool.driver.rules[2]).toEqual({
+            "id": "TEST03",
+            "name": "Test 03 rule name",
+            "messageStrings": {
+                "default": {
+                    "text": "This is the message text. It might be very long."
+                }
+            },
+            "shortDescription": {
+                "text": "short description"
+            },
+            "fullDescription": {
+                "markdown": "full description markdown",
+                "text": "full description text"
+            },
+            "help": {
+                "markdown": "full description markdown\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 123] AAA *[What is this? (2min video)](ddd)*\n\n* bbb [Try this challenge in Secure Code Warrior](ccc)",
+                "text": `full description text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 123] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+            },
+            "properties": {
+                "tags": [
+                    "CWE 123"
+                ]
+            }
+        });
+
+        // TEST04 expect fullDescription.text used to init help object for both text and markdown and then material appended
+        expect(sarif.runs[0].tool.driver.rules[3]).toEqual({
+            "id": "TEST04",
+            "name": "Test 04 rule name",
+            "messageStrings": {
+                "default": {
+                    "text": "This is the message text. It might be very long."
+                }
+            },
+            "shortDescription": {
+                "text": "short description"
+            },
+            "fullDescription": {
+                "text": "full description text"
+            },
+            "help": {
+                "markdown": "full description text\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 234] AAA *[What is this? (2min video)](ddd)*\n\n* bbb [Try this challenge in Secure Code Warrior](ccc)",
+                "text": `full description text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 234] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+            },
+            "properties": {
+                "tags": [
+                    "CWE 234"
+                ]
+            }
+        });
+
+        // TEST05 expect fullDescription.text used to init help object for both text and markdown and then material appended
+        expect(sarif.runs[0].tool.driver.rules[4]).toEqual({
+            "id": "TEST05",
+            "name": "Test 05 rule name",
+            "messageStrings": {
+                "default": {
+                    "text": "This is the message text. It might be very long."
+                }
+            },
+            "shortDescription": {
+                "text": "short description"
+            },
+            "fullDescription": {
+                "markdown": "full description markdown"
+            },
+            "help": {
+                "markdown": "full description markdown\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 345] AAA *[What is this? (2min video)](ddd)*\n\n* bbb [Try this challenge in Secure Code Warrior](ccc)",
+                "text": `Build your secure coding skills and defend your code:\n\n[CWE 345] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+            },
+            "properties": {
+                "tags": [
+                    "CWE 345"
+                ]
+            }
+        });
+    }
+});
+

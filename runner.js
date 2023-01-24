@@ -20,7 +20,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
         logger.debug(`Input path type: ${pathType}`);
 
         if (pathType !== 'file') {
-            const exists = await _fs.existsSync(OUTPUT_DIR);
+            const exists = _fs.existsSync(OUTPUT_DIR);
             if (!exists) {
                 await fs.mkdir(OUTPUT_DIR);
             }
@@ -30,7 +30,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
         // load SARIF file from input location
         const sarifs = await sarifLoader.load(inFile);
         for (const sarif of sarifs) {
-            logger.debug(JSON.stringify(sarif, null, 4));
+            // logger.debug(JSON.stringify(sarif, null, 4));
 
             // process each run
             if (sarif && sarif.runs) {
@@ -45,7 +45,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
 
             // write SARIF file to output location
             const outputData = JSON.stringify(sarif);
-            logger.debug(JSON.stringify(sarif, null, 4));
+            // logger.debug(JSON.stringify(sarif, null, 4));
 
             if (pathType === 'file') {
                 logger.debug(`Writing file: ${outFile}`);
