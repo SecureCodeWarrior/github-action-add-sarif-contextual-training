@@ -1,18 +1,19 @@
 "use strict";
 
 function addTextAndMarkdown(helpObj, textToAdd, markdownToAdd) {
-    if (helpObj && !helpObj.text && !helpObj.markdown) {
-        helpObj.text = textToAdd;
-        helpObj.markdown = markdownToAdd;
-        return;
-    }
-
+    // This will blindly add to both text and markdown but the help object supplied will always have both
     if (helpObj && helpObj.text) {
         helpObj.text += `\n\n${textToAdd}`;
+    }
+    else if (helpObj && !helpObj.text) {
+        helpObj.text = textToAdd;
     }
 
     if (helpObj && helpObj.markdown) {
         helpObj.markdown += `\n\n${markdownToAdd}`;
+    }
+    else if (helpObj && !helpObj.markdown) {
+        helpObj.markdown = markdownToAdd;
     }
 }
 

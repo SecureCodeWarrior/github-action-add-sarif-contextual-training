@@ -57,8 +57,12 @@ async function process(run, languageKey, triggeredRules) {
                     }
 
                     if (!rule.help) rule.help = {
+                        // if `help` is not present but fullDescription is present
+                        // init `help` with `fullDescription` to avoid overwriting the displayed description
+                        // for `markdown` fallback to `text` if there is no `fullDescription.markdown`
+                        // for `text` fallback to "No description" if there is no `fullDescription.text`
                         text: (rule.fullDescription && rule.fullDescription.text) || '',
-                        markdown: (rule.fullDescription && rule.fullDescription.markdown) || ''
+                        markdown: (rule.fullDescription && (rule.fullDescription.markdown || rule.fullDescription.text)) || ''
                     };
 
                     if (!isShown) {
