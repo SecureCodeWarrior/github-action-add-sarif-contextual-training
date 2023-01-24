@@ -56,7 +56,10 @@ async function process(run, languageKey, triggeredRules) {
                         continue;
                     }
 
-                    if (!rule.help) rule.help = {};
+                    if (!rule.help) rule.help = {
+                        text: (rule.fullDescription && rule.fullDescription.text) || '',
+                        markdown: (rule.fullDescription && rule.fullDescription.markdown) || ''
+                    };
 
                     if (!isShown) {
                         isShown = true;
