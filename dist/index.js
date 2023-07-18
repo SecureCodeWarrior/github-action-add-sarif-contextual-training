@@ -10184,7 +10184,12 @@ const logger = __nccwpck_require__(1517);
 const OUTPUT_DIR = 'processed-sarifs';
 
 async function writeOutputFile(outFilename, data) {
-    await fs.writeFile(outFilename, data, 'utf8');
+    try {
+        await fs.writeFile(outFilename, data, 'utf8');
+    }
+    catch (e) {
+        console.error(`Error writing file: ${outFilename}`, e);
+    }
 }
 
 async function run(inFile, outFile, languageKey, onFailure) {
