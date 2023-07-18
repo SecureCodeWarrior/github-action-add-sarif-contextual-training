@@ -25,3 +25,6 @@ jobs:
         inputSarifFile: ./fixtures/test002.sarif
         outputSarifFile: ./fixtures/test002.out.sarif
         githubToken: ${{ secrets.GITHUB_TOKEN }}
+    - name: Display output
+      run: |
+        cat ./fixtures/test002.out.sarif
