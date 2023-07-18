@@ -20,7 +20,7 @@ async function start() {
         logger.debug(`Repository language: ${languageKey}`);
     }
 
-    run(inFile, outFile, githubToken, languageKey, onFailure);
+    run(inFile, outFile, languageKey, onFailure);
 }
 
 start();
