@@ -1,6 +1,5 @@
 "use strict";
 
-const core = require('@actions/core');
 const github = require('@actions/github');
 
 // get env GITHUB_REPOSITORY (should be something like octocat/Hello-World)
@@ -56,7 +55,6 @@ async function getLanguageFromRepo(token) {
         language = LANGUAGE_KEYS[repo.language] || null;
     }
     catch (e) {
-        core.error(e);
         language = null;
     }
 
