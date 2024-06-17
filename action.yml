@@ -17,5 +17,5 @@ inputs:
     description: 'Provide `secrets.GITHUB_TOKEN` to use the GitHub access token automatically supplied by GitHub Workflows'
     required: false
 runs:
-  using: 'node12'
+  using: 'node20'
   main: 'dist/index.js'
