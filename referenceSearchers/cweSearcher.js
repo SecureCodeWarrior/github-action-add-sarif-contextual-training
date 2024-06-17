@@ -10,7 +10,7 @@ function search(text) {
             displayReferenceType: 'CWE',
             displayReference: `CWE ${textMatch[1]}`,
             referenceType: 'cwe',
-            referenceId: textMatch[1],
+            referenceId: parseInt(textMatch[1], 10).toString(),
             fullMatchedText: textMatch[0]
         });
         textMatch = regex.exec(text);

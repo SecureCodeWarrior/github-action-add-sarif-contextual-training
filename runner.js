@@ -44,7 +44,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
                     const triggeredRules = await resultProcessor.process(run, languageKey);
                     
                     // process run for rules
-                    await ruleProcessor.process(run, languageKey, triggeredRules);
+                    await ruleProcessor.processRun(run, languageKey, triggeredRules);
                 }
             }
 
