@@ -5,7 +5,7 @@
     {
       "tool": {
         "driver": {
-          "name": "CodeQL",
+          "name": "GitHub CodeQL",
           "organization": "GitHub",
           "semanticVersion": "2.4.2",
           "rules": [
