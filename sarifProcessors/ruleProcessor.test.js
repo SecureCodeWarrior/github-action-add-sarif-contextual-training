@@ -1,5 +1,7 @@
 "use strict";
 
+const fs = require('fs');
+
 const directLinking = require('../directLinking');
 const ruleProcessor = require('./ruleProcessor');
 const sarifLoader = require('../sarifLoader');
@@ -9,7 +11,7 @@ jest.mock('../directLinking');
 test('ruleProcessor should load test001 and not add anything', async () => {
     const sarifs = await sarifLoader.load('./fixtures/test001.sarif');
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
             ['TEST01', true]
         ]));
 
@@ -50,7 +52,7 @@ test('ruleProcessor should load test002 and add contextual micro-learning materi
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
             ['TEST01', true],
             ['TEST02', true]
         ]));
@@ -113,7 +115,7 @@ test('ruleProcessor should load test003 and add 2 entries based on the rule id a
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
             ['TEST01 CWE-22', true]
         ]));
 
@@ -154,7 +156,7 @@ test('ruleProcessor should load test004 and add 4 entries based on the rule id, 
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'python', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'python', new Map([
             ['TEST01 CWE-22', true]
         ]));
 
@@ -203,7 +205,7 @@ test('ruleProcessor should load test005 and add 6 entries based on the rule id, 
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
             ['TEST01 CWE-22', true]
         ]));
 
@@ -252,7 +254,7 @@ test('ruleProcessor should load test006 and appropriately handle missing help ob
     });
 
     for (const sarif of sarifs) {
-        await ruleProcessor.process(sarif.runs[0], 'java', new Map([
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
             ['TEST01', true],
             ['TEST02', true],
             ['TEST03', true],
@@ -395,3 +397,32 @@ test('ruleProcessor should load test006 and appropriately handle missing help ob
     }
 });
 
+test('ruleProcessor should handle extension rules as well as rename CodeQL to GitHub CodeQL - load codeql-extension-rules.sarif and output should match codeql-extension-rules-output.sarif', async () => {
+    const sarifs = await sarifLoader.load('./fixtures/codeql-extension-rules.sarif');
+    const expectedSarif = JSON.parse(fs.readFileSync('./fixtures/codeql-extension-rules-output.sarif', { encoding: 'utf8' }));
+    const jsonExpected = JSON.stringify(expectedSarif, null, 2);
+    const NAME = 'AAA';
+    const DESCRIPTION = 'bbb';
+    const URL = 'ccc';
+    const VIDEOS = ['ddd'];
+    directLinking.getTrainingData.mockResolvedValue({
+        name: NAME,
+        description: DESCRIPTION,
+        url: URL,
+        videos: VIDEOS
+    });
+
+    for (const sarif of sarifs) {
+        await ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
+            ['py/path-injection', true],
+            ['py/command-line-injection', true]
+        ]));
+
+        // expect material added to help.text and help.markdown
+        expect(jsonExpected).toEqual(JSON.stringify(sarif, null, 2));
+
+        // expect tool driver name to be renamed from CodeQL to GitHub CodeQL
+        // workaround for https://github.com/github/codeql-action/issues/305
+        expect(sarif.runs[0].tool.driver.name).toEqual('GitHub CodeQL');
+    }
+});
