@@ -3,8 +3,7 @@
 const fs = require('fs').promises;
 const _glob = require('glob');
 const path = require('path');
-const util = require('util');
-const glob = util.promisify(_glob);
+const glob = _glob.globSync;
 
 const logger = require('./logger');
 
