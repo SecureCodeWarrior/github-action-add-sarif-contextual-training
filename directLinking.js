@@ -8,8 +8,11 @@ const PARTNER_ID = 'github-sarif-action';
 
 async function getTrainingData(mappingListId, mappingKey, languageKey) {
 
+    console.log('getTrainingData:enter');
+
     // create an list of values to populate into the Id param of the DI linking API
     let idValue = [PARTNER_ID];
+    console.log('process.env.GITHUB_REPOSITORY_OWNER', process.env.GITHUB_REPOSITORY_OWNER);
     if (process.env.GITHUB_REPOSITORY_OWNER) {
         idValue.push(process.env.GITHUB_REPOSITORY_OWNER)
     }
@@ -21,6 +24,9 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
     else {
         url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}`;
     }
+
+    console.log('getTrainingData:exit');
+
     return fetch(url)
         .then(function (response) {
             if (!response.ok) {
@@ -28,6 +34,8 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
             }
             return response.json();
         });
+
+    
 }
 
 module.exports = {
