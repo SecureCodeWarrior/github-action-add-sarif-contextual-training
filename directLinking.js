@@ -21,10 +21,10 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
 
     let url;
     if (languageKey) {
-        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}&LanguageKey=${languageKey}`;
+        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=z${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}&LanguageKey=${languageKey}`;
     }
     else {
-        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}`;
+        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=z${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}`;
     }
 
     logger.debug('getTrainingData:exit');
