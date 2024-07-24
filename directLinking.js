@@ -1,6 +1,7 @@
 "use strict";
 
 const fetch = require('node-fetch');
+const logger = require('./logger');
 
 const API_URL_ORIGIN = 'https://integration-api.securecodewarrior.com';
 const API_URL_PATH = '/api/v1/trial';
@@ -8,13 +9,14 @@ const PARTNER_ID = 'github-sarif-action';
 
 async function getTrainingData(mappingListId, mappingKey, languageKey) {
 
-    console.log('getTrainingData:enter');
+    logger.debug('getTrainingData:enter');
 
     // create an list of values to populate into the Id param of the DI linking API
     let idValue = [PARTNER_ID];
-    console.log('process.env.GITHUB_REPOSITORY_OWNER', process.env.GITHUB_REPOSITORY_OWNER);
-    if (process.env.GITHUB_REPOSITORY_OWNER) {
-        idValue.push(process.env.GITHUB_REPOSITORY_OWNER)
+    //process.env.GITHUB_REPOSITORY.split('/')
+    logger.debug('process.env.GITHUB_REPOSITORY', process.env.GITHUB_REPOSITORY);
+    if (process.env.GITHUB_REPOSITORY) {
+        idValue.push(process.env.GITHUB_REPOSITORY.split('/')[0]);
     }
 
     let url;
@@ -25,7 +27,7 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
         url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}`;
     }
 
-    console.log('getTrainingData:exit');
+    logger.debug('getTrainingData:exit');
 
     return fetch(url)
         .then(function (response) {
