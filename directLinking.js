@@ -12,7 +12,8 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
     // create an list of values to populate into the Id param of the DI linking API
     let idValue = [PARTNER_ID];
     if (process.env.GITHUB_REPOSITORY) {
-        idValue.push(process.env.GITHUB_REPOSITORY.split('/')[0]);
+        const githubOwner = process.env.GITHUB_REPOSITORY.split('/')[0];
+        idValue.push(githubOwner);
     }
 
     let url;
