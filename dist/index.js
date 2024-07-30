@@ -8,7 +8,6 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 
 const fetch = __nccwpck_require__(467);
-const logger = __nccwpck_require__(1517);
 
 const API_URL_ORIGIN = 'https://integration-api.securecodewarrior.com';
 const API_URL_PATH = '/api/v1/trial';
@@ -38,8 +37,6 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
             }
             return response.json();
         });
-
-    
 }
 
 module.exports = {

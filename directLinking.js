@@ -1,7 +1,6 @@
 "use strict";
 
 const fetch = require('node-fetch');
-const logger = require('./logger');
 
 const API_URL_ORIGIN = 'https://integration-api.securecodewarrior.com';
 const API_URL_PATH = '/api/v1/trial';
@@ -31,8 +30,6 @@ async function getTrainingData(mappingListId, mappingKey, languageKey) {
             }
             return response.json();
         });
-
-    
 }
 
 module.exports = {
