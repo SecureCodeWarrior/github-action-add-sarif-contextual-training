@@ -93,6 +93,8 @@ async function processRun(run, languageKey, triggeredRules) {
 
     if (run && run.tool && run.tool.extensions && run.tool.extensions) {
         for (const extension of run.tool.extensions) {
+            if (!extension.rules || !Array.isArray(extension.rules)) continue;
+
             for (const rule of extension.rules) {
                 try {
                     await processRule(rule, languageKey, triggeredRules);
