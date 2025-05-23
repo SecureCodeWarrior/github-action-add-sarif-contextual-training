@@ -426,3 +426,77 @@ test('ruleProcessor should handle extension rules as well as rename CodeQL to Gi
         expect(sarif.runs[0].tool.driver.name).toEqual('GitHub CodeQL');
     }
 });
+
+describe('processRun - Tool Driver Name overwrite', () => {
+
+    function createRunWithName(name) {
+        return {
+            tool: {
+                driver: {
+                    name,
+                    rules: [],
+                },
+            },
+        };
+    }
+
+    test('Name exactly "CodeQL" should be overwritten', async () => {
+        const run = createRunWithName('CodeQL');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Name "codeql" lowercase does get overwritten (current function)', async () => {
+        const run = createRunWithName('codeql');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Name "CODEQL" uppercase does get overwritten (current function)', async () => {
+        const run = createRunWithName('CODEQL');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Name "CoDeQl" mixed case does get overwritten (current function)', async () => {
+        const run = createRunWithName('CoDeQl');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Name with spaces " CodeQL " does get overwritten (current function)', async () => {
+        const run = createRunWithName(' CodeQL ');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Name "codeql" lowercase gets overwritten (with trimmed + lowercase check)', async () => {
+        const run = createRunWithName('  codeql  ');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+    });
+
+    test('Other name "SonarQube" does not get overwritten', async () => {
+        const run = createRunWithName('SonarQube');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('SonarQube');
+    });
+
+    test('Empty name "" does not get overwritten', async () => {
+        const run = createRunWithName('');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('');
+    });
+
+    test('Null name does not throw and remains null', async () => {
+        const run = createRunWithName(null);
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBeNull();
+    });
+
+    test('Name is a substring "CodeQL Pro" does not get overwritten', async () => {
+        const run = createRunWithName('CodeQL Pro');
+        await ruleProcessor.processRun(run, '', new Set());
+        expect(run.tool.driver.name).toBe('CodeQL Pro');
+    });
+});

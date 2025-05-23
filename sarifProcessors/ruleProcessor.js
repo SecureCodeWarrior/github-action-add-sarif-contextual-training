@@ -75,8 +75,8 @@ async function processRule(rule, languageKey, triggeredRules) {
 
 async function processRun(run, languageKey, triggeredRules) {
     if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
-        if (run.tool.driver.name === 'CodeQL') {
-            // workaround for help text being overwritten by CodeQL template when GitHub detects CodeQL
+        // PLAT-15858 Update to handle trimming and case-insensitive matches
+        if (run.tool.driver.name && run.tool.driver.name.trim().toLowerCase() === 'codeql') {            // workaround for help text being overwritten by CodeQL template when GitHub detects CodeQL
             // ref: https://github.com/github/codeql-action/issues/305
             run.tool.driver.name = 'GitHub CodeQL';
         }
