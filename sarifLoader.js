@@ -23,6 +23,7 @@ async function getPathType(path) {
         }
     }
     catch(e) {
+        console.error('Error', e);
         // must be glob path
         return 'glob';
     }
@@ -67,6 +68,7 @@ async function load(inFilePath) {
         }
     }
     catch(e) {
+        console.error('Error', e);
         // else assume glob or wildcard expression
         const globFiles = await glob(inFilePath);
         const result = await Promise.all(globFiles.map(async (file) => {

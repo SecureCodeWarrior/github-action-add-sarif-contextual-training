@@ -55,6 +55,7 @@ async function getLanguageFromRepo(token) {
         language = LANGUAGE_KEYS[repo.language] || null;
     }
     catch (e) {
+        console.error('Error', e);
         language = null;
     }
 

@@ -50,6 +50,8 @@ async function processRule(rule, languageKey, triggeredRules) {
                 trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey);
             }
             catch (e) {
+                console.error('Error', e);
+
                 trainingData = null;
                 continue;
             }
@@ -86,6 +88,7 @@ async function processRun(run, languageKey, triggeredRules) {
                 await processRule(rule, languageKey, triggeredRules);
             }
             catch (e) {
+                console.error('Error', e);
                 continue;
             }
         }
@@ -100,6 +103,8 @@ async function processRun(run, languageKey, triggeredRules) {
                     await processRule(rule, languageKey, triggeredRules);
                 }
                 catch (e) {
+                    console.error('Error', e);
+
                     continue;
                 }
             }
