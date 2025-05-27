@@ -13,9 +13,6 @@ inputs:
     description: 'Relative destination location for processed SARIF file(s)'
     required: true
     default: './findings.processed.sarif'
-  githubToken:
-    description: 'Provide `secrets.GITHUB_TOKEN` to use the GitHub access token automatically supplied by GitHub Workflows'
-    required: false
 runs:
   using: 'node20'
   main: 'dist/index.js'
