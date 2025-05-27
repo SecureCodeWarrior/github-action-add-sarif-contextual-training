@@ -12,15 +12,7 @@ async function start() {
     logger.setLogger((msg) => core.debug(msg));
     const onFailure = (message) => core.setFailed(message);
 
-    // check if token provided and get language
-    // const githubToken = core.getInput('githubToken');
-    let languageKey = null;
-    // if (githubToken) {
-    //     languageKey = await languageResolver.getLanguageFromRepo(githubToken);
-    //     logger.debug(`Repository language: ${languageKey}`);
-    // }
-
-    run(inFile, outFile, languageKey, onFailure);
+    run(inFile, outFile, null, onFailure);
 }
 
 start();
