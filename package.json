@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/SecureCodeWarrior/github-action-add-sarif-contextual-training#readme",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.1",
     "glob": "^11.1.0",
     "node-fetch": "^2.7.0"
   },
