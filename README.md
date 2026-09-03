@@ -35,6 +35,48 @@ This tool currently supports adding training material based on CWE references (e
 
 ## Usage - GitHub Actions
 
+### CodeQL
+
+CodeQL normally uploads SARIF automatically. Disable that upload, enrich the
+generated SARIF directory, and then upload the processed results:
+
+```yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: never
+          output: sarif-results
+
+      - name: Add SCW Training
+        uses: SecureCodeWarrior/github-action-add-sarif-contextual-training@v1
+        with:
+          inputSarifFile: sarif-results
+          outputSarifFile: processed-sarifs
+
+      - name: Upload enriched SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: processed-sarifs
+          category: "/language:${{ matrix.language }}"
+```
+
+The action preserves the `CodeQL` tool name by default. Set
+`renameCodeQLTool: true` only when targeting older code scanning behavior that
+requires the historical `GitHub CodeQL` compatibility workaround.
+For a single-language job, you can also set `languageKey` to the matching Secure
+Code Warrior language or framework key. A language matrix should define a
+separate `languageKey` value for each entry.
+
 ### Individual SARIF file
 
 ```yaml
@@ -42,7 +84,7 @@ This tool currently supports adding training material based on CWE references (e
       # Fetch SARIF - for example:
       # - Checkout the repository using `actions/checkout` if the SARIF file is committed. This example assumes the SARIF file is located at `sarif/findings.sarif` within the repository.
       #     - name: Checkout repository
-      #       uses: actions/checkout@v2
+      #       uses: actions/checkout@v4
       # - Fetch the SARIF file from your SAST tool. The vendor may already have a GitHub Action for this. This example assumes the SARIF file is fetched and saved to `sarif/findings.sarif`.
       #     - name: Download SARIF
       #       uses: vendor/sast-tool-sarif@v1
@@ -65,7 +107,7 @@ This tool currently supports adding training material based on CWE references (e
           outputSarifFile: sarif/findings.processed.sarif
 
       - name: Import Results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: sarif/findings.processed.sarif
 ```
@@ -90,7 +132,7 @@ This tool currently supports adding training material based on CWE references (e
           outputSarifFile: ./processed-sarifs
 
       - name: Import Results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: ./processed-sarifs
 ```
@@ -115,7 +157,7 @@ This tool currently supports adding training material based on CWE references (e
           outputSarifFile: ./processed-sarifs
 
       - name: Import Results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: ./processed-sarifs
 ```
@@ -129,6 +171,18 @@ The SARIF file(s) to add Secure Code Warrior contextual training material to. Th
 #### `outputSarifFile`
 
 The output path of the resulting SARIF file(s) with Secure Code Warrior contextual training material appended. If a glob path or a directory was provided as the `inputSarifFile` input then the resulting SARIF files will be output to the `./processed-sarifs` directory, which can then simply be the path provided in the `sarif_file` input of the `github/codeql-action/upload-sarif` action. **Default value:** `./findings.processed.sarif`
+
+#### `languageKey`
+
+Optional Secure Code Warrior language and framework key used to select more
+specific exercises. Omit this input for generic training content. Valid values
+are available from the Direct Linking API `/api/v1/language-keys` endpoint.
+
+#### `renameCodeQLTool`
+
+Optional compatibility setting that renames an exact, case-insensitive
+`CodeQL` tool name to `GitHub CodeQL`. The default is `false`, which preserves
+CodeQL-specific features such as autofix integrations.
 
 ## Usage - Command line
 

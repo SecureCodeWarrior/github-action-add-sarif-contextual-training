@@ -7,8 +7,8 @@ const textObjectProcessor = require('./textObjectProcessor');
 const phraseSearcher = require('../referenceSearchers/phraseSearcher');
 
 async function processRule(rule, languageKey, triggeredRules) {
-    if (!triggeredRules.has(rule.id)) {
-        throw new Error('Rule not triggered');
+    if (!triggeredRules.has(rule) && !triggeredRules.has(rule.id)) {
+        return;
     }
 
     let ruleText = '';
@@ -38,11 +38,15 @@ async function processRule(rule, languageKey, triggeredRules) {
     let matches = cweSearcher.search(ruleText);
     matches = matches.concat(phraseSearcher.search(ruleText));
     const alreadyAddedEntries = {};
-    let isShown = false;
+    const alreadyAddedTrainingUrls = helpProcessor.getTrainingUrls(rule.help);
+    let isShown = helpProcessor.hasTrainingHeader(rule.help);
     for (const match of matches) {
         const matchId = `${match.referenceType}::${match.referenceId}`;
         if (!alreadyAddedEntries[matchId]) {
             alreadyAddedEntries[matchId] = 1;
+            if (helpProcessor.hasTrainingEntry(rule.help, match.displayReference)) {
+                continue;
+            }
 
             // call Direct Linking API
             let trainingData;
@@ -50,11 +54,21 @@ async function processRule(rule, languageKey, triggeredRules) {
                 trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey);
             }
             catch (e) {
-                console.error('Error', e);
-
-                trainingData = null;
+                console.warn(`Unable to load Secure Code Warrior training for ${match.displayReference}: ${e.message}`);
                 continue;
             }
+            if (!trainingData || !trainingData.url) {
+                console.warn(`Secure Code Warrior returned incomplete training data for ${match.displayReference}`);
+                continue;
+            }
+            const normalizedTrainingUrl = trainingData.url.replace(/ /g, '%20');
+
+            // CWE mappings are more precise than phrase matches, so suppress phrase
+            // entries that resolve to training already added for this rule.
+            if (match.referenceType === 'phrase' && alreadyAddedTrainingUrls.has(normalizedTrainingUrl)) {
+                continue;
+            }
+            alreadyAddedTrainingUrls.add(normalizedTrainingUrl);
 
             if (!rule.help) rule.help = {
                 // if `help` is not present but fullDescription is present
@@ -70,20 +84,21 @@ async function processRule(rule, languageKey, triggeredRules) {
                 helpProcessor.appendHeader(rule.help);
             }
 
-            helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, match.displayReference);
+            helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, normalizedTrainingUrl, trainingData.videos, match.displayReference);
         }
     }
 }
 
-async function processRun(run, languageKey, triggeredRules) {
-    if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
+async function processRun(run, languageKey, triggeredRules, options = {}) {
+    if (run && run.tool && run.tool.driver) {
         // PLAT-15858 Update to handle trimming and case-insensitive matches
-        if (run.tool.driver.name && run.tool.driver.name.trim().toLowerCase() === 'codeql') {            // workaround for help text being overwritten by CodeQL template when GitHub detects CodeQL
+        if (options.renameCodeQLTool && run.tool.driver.name && run.tool.driver.name.trim().toLowerCase() === 'codeql') {
+            // Compatibility workaround for https://github.com/github/codeql-action/issues/305
             // ref: https://github.com/github/codeql-action/issues/305
             run.tool.driver.name = 'GitHub CodeQL';
         }
 
-        for (const rule of run.tool.driver.rules) {
+        for (const rule of run.tool.driver.rules || []) {
             try {
                 await processRule(rule, languageKey, triggeredRules);
             }

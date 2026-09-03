@@ -8,40 +8,148 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 
 const fetch = __nccwpck_require__(6705);
+const { URL, URLSearchParams } = __nccwpck_require__(7016);
 
 const API_URL_ORIGIN = 'https://integration-api.securecodewarrior.com';
 const API_URL_PATH = '/api/v1/trial';
 const PARTNER_ID = 'github-sarif-action';
+const INTEGRATION_ID = 'github';
+const MAX_ATTEMPTS = 3;
+const MIN_REQUEST_INTERVAL_MS = 100;
+const REQUEST_TIMEOUT_MS = 10000;
+const RETRY_BASE_DELAY_MS = 250;
+const MAX_RETRY_DELAY_MS = 5000;
 
-async function getTrainingData(mappingListId, mappingKey, languageKey) {
+const responseCache = new Map();
+let lastRequestStartedAt = 0;
+let requestQueue = Promise.resolve();
 
-    // create an list of values to populate into the Id param of the DI linking API
-    let idValue = [PARTNER_ID];
+function sleep(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function buildUrl(mappingListId, mappingKey, languageKey) {
+    const idValue = [PARTNER_ID];
     if (process.env.GITHUB_REPOSITORY) {
         const githubOwner = process.env.GITHUB_REPOSITORY.split('/')[0];
         idValue.push(githubOwner);
     }
 
-    let url;
+    const query = new URLSearchParams({
+        Id: idValue.join(':'),
+        MappingList: mappingListId,
+        MappingKey: mappingKey,
+        IntegrationId: INTEGRATION_ID
+    });
     if (languageKey) {
-        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}&LanguageKey=${languageKey}`;
-    }
-    else {
-        url = `${API_URL_ORIGIN}${API_URL_PATH}?Id=${idValue.join(':')}&MappingList=${mappingListId}&MappingKey=${mappingKey}`;
+        query.set('LanguageKey', languageKey);
     }
 
-    return fetch(url)
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error('Received error response', response);
+    const url = new URL(API_URL_PATH, API_URL_ORIGIN);
+    url.search = query.toString();
+    return url.toString();
+}
+
+function getRetryDelay(response, attempt) {
+    const retryAfter = response.headers && response.headers.get('retry-after');
+    if (retryAfter && /^\d+(\.\d+)?$/.test(retryAfter)) {
+        const retryDelay = Number(retryAfter) * 1000;
+        return retryDelay <= MAX_RETRY_DELAY_MS ? retryDelay : null;
+    }
+
+    return RETRY_BASE_DELAY_MS * (2 ** attempt);
+}
+
+async function throttle() {
+    const elapsed = Date.now() - lastRequestStartedAt;
+    const waitTime = Math.max(0, MIN_REQUEST_INTERVAL_MS - elapsed);
+    if (waitTime > 0) {
+        await sleep(waitTime);
+    }
+    lastRequestStartedAt = Date.now();
+}
+
+async function fetchTrainingData(url) {
+    let lastError;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        await throttle();
+
+        const controller = new global.AbortController();
+        const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        let response;
+        try {
+            response = await fetch(url, {
+                signal: controller.signal
+            });
+            if (response.ok) {
+                return await response.json();
             }
-            return response.json();
-        });
+        }
+        catch (error) {
+            lastError = error;
+            if (attempt === MAX_ATTEMPTS - 1) {
+                throw error;
+            }
+            await sleep(RETRY_BASE_DELAY_MS * (2 ** attempt));
+            continue;
+        }
+        finally {
+            clearTimeout(timeout);
+        }
+
+        if (response.body && typeof response.body.destroy === 'function') {
+            response.body.destroy();
+        }
+
+        const error = new Error(`Secure Code Warrior API returned ${response.status} ${response.statusText || ''}`.trim());
+        error.status = response.status;
+        lastError = error;
+
+        const isRetryable = response.status === 429 || (response.status >= 500 && response.status <= 599);
+        if (!isRetryable || attempt === MAX_ATTEMPTS - 1) {
+            throw error;
+        }
+
+        const retryDelay = getRetryDelay(response, attempt);
+        if (retryDelay === null) {
+            throw error;
+        }
+        await sleep(retryDelay);
+    }
+
+    throw lastError;
+}
+
+async function getTrainingData(mappingListId, mappingKey, languageKey) {
+    const url = buildUrl(mappingListId, mappingKey, languageKey);
+    if (responseCache.has(url)) {
+        return responseCache.get(url);
+    }
+
+    const request = requestQueue.then(() => fetchTrainingData(url));
+    requestQueue = request.catch(() => {});
+    responseCache.set(url, request);
+
+    try {
+        return await request;
+    }
+    catch (error) {
+        responseCache.delete(url);
+        throw error;
+    }
+}
+
+function resetForTesting() {
+    responseCache.clear();
+    lastRequestStartedAt = 0;
+    requestQueue = Promise.resolve();
 }
 
 module.exports = {
-    getTrainingData
-}
+    getTrainingData,
+    resetForTesting
+};
 
 
 /***/ }),
@@ -7509,15 +7617,10 @@ const logger = __nccwpck_require__(1830);
 const OUTPUT_DIR = 'processed-sarifs';
 
 async function writeOutputFile(outFilename, data) {
-    try {
-        await fs.writeFile(outFilename, data, 'utf8');
-    }
-    catch (e) {
-        console.error(`Error writing file: ${outFilename}`, e);
-    }
+    await fs.writeFile(outFilename, data, 'utf8');
 }
 
-async function run(inFile, outFile, languageKey, onFailure) {
+async function run(inFile, outFile, languageKey, onFailure, options = {}) {
     try {
         const pathType = await sarifLoader.getPathType(inFile);
         let fileCount = 1;
@@ -7543,7 +7646,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
                     const triggeredRules = await resultProcessor.process(run, languageKey);
                     
                     // process run for rules
-                    await ruleProcessor.processRun(run, languageKey, triggeredRules);
+                    await ruleProcessor.processRun(run, languageKey, triggeredRules, options);
                 }
             }
 
@@ -7674,6 +7777,9 @@ module.exports = {
 "use strict";
 
 
+const TRAINING_HEADER_TEXT = 'Build your secure coding skills and defend your code:';
+const TRAINING_HEADER_MARKDOWN = '## Build your secure coding skills and defend your code';
+
 function addTextAndMarkdown(helpObj, textToAdd, markdownToAdd) {
     // This will blindly add to both text and markdown but the help object supplied will always have both
     if (helpObj && helpObj.text) {
@@ -7692,22 +7798,47 @@ function addTextAndMarkdown(helpObj, textToAdd, markdownToAdd) {
 }
 
 function appendHeader(helpObj) {
-    let textToAdd = 'Build your secure coding skills and defend your code:';
-    let markdownToAdd = `## Build your secure coding skills and defend your code`;
-    addTextAndMarkdown(helpObj, textToAdd, markdownToAdd);
+    addTextAndMarkdown(helpObj, TRAINING_HEADER_TEXT, TRAINING_HEADER_MARKDOWN);
+}
+
+function hasTrainingHeader(helpObj) {
+    return Boolean(helpObj && (
+        (helpObj.text && helpObj.text.includes(TRAINING_HEADER_TEXT)) ||
+        (helpObj.markdown && helpObj.markdown.includes(TRAINING_HEADER_MARKDOWN))
+    ));
+}
+
+function hasTrainingEntry(helpObj, displayReference) {
+    const reference = `[${displayReference}]`;
+    return Boolean(helpObj && (
+        (helpObj.text && helpObj.text.includes(reference)) ||
+        (helpObj.markdown && helpObj.markdown.includes(reference))
+    ));
+}
+
+function getTrainingUrls(helpObj) {
+    const urls = new Set();
+    const content = helpObj && `${helpObj.text || ''}\n${helpObj.markdown || ''}`;
+    const regex = /\[Try this challenge in Secure Code Warrior\]\(([^)]+)\)/g;
+    let match = content && regex.exec(content);
+    while (match) {
+        urls.add(match[1]);
+        match = regex.exec(content);
+    }
+    return urls;
 }
 
 function appendTrainingData(helpObj, name, description, url, videos, displayReference) {
     // encode spaces in URLs to not break GFM
     url = url.replace(/ /g, '%20');
-    if (videos && videos[0]) videos[0] = videos[0].replace(/ /g, '%20');
+    const videoUrl = videos && videos[0] && videos[0].replace(/ /g, '%20');
 
     let textToAdd = `[${displayReference}] ${name}`;
-    if (videos && videos[0]) textToAdd += ` [What is this? (2min video)](${videos[0]})`;
+    if (videoUrl) textToAdd += ` [What is this? (2min video)](${videoUrl})`;
     textToAdd += `\n\n${description} [Try this challenge in Secure Code Warrior](${url})`;
 
     let markdownToAdd = `#### [${displayReference}] ${name}`
-    if (videos && videos[0]) markdownToAdd += ` *[What is this? (2min video)](${videos[0]})*`;
+    if (videoUrl) markdownToAdd += ` *[What is this? (2min video)](${videoUrl})*`;
     markdownToAdd += `\n\n* ${description} [Try this challenge in Secure Code Warrior](${url})`;
 
     addTextAndMarkdown(helpObj, textToAdd, markdownToAdd);
@@ -7715,7 +7846,10 @@ function appendTrainingData(helpObj, name, description, url, videos, displayRefe
 
 module.exports = {
     appendHeader,
-    appendTrainingData
+    appendTrainingData,
+    hasTrainingEntry,
+    hasTrainingHeader,
+    getTrainingUrls
 };
 
 
@@ -7727,20 +7861,100 @@ module.exports = {
 "use strict";
 
 
+function resolveToolComponent(run, reference) {
+    const tool = run.tool;
+    if (!tool || !tool.driver) {
+        return undefined;
+    }
+    if (!reference) {
+        return tool.driver;
+    }
+    if (Number.isInteger(reference.index)) {
+        return reference.index === -1 ? tool.driver : tool.extensions && tool.extensions[reference.index];
+    }
+    if (reference.guid) {
+        if (tool.driver.guid === reference.guid) {
+            return tool.driver;
+        }
+        return tool.extensions && tool.extensions.find((extension) => extension.guid === reference.guid);
+    }
+    if (reference.name) {
+        if (tool.driver.name === reference.name) {
+            return tool.driver;
+        }
+        return tool.extensions && tool.extensions.find((extension) => extension.name === reference.name);
+    }
+
+    return tool.driver;
+}
+
+function findRule(component, reference) {
+    const rules = component && component.rules;
+    if (!rules) {
+        return undefined;
+    }
+    if (Number.isInteger(reference.index)) {
+        const indexedRule = rules[reference.index];
+        const matchesId = !reference.id || indexedRule && indexedRule.id === reference.id;
+        const matchesGuid = !reference.guid || indexedRule && indexedRule.guid === reference.guid;
+        if (indexedRule && matchesId && matchesGuid) {
+            return indexedRule;
+        }
+    }
+    if (reference.guid) {
+        return rules.find((rule) => rule.guid === reference.guid);
+    }
+    if (reference.id) {
+        return rules.find((rule) => rule.id === reference.id);
+    }
+
+    return undefined;
+}
+
+function resolveRule(run, result) {
+    if (result.rule) {
+        const component = resolveToolComponent(run, result.rule.toolComponent);
+        const rule = findRule(component, result.rule);
+        if (rule || result.rule.toolComponent) {
+            return rule;
+        }
+    }
+
+    const tool = run.tool;
+    if (!tool || !tool.driver) {
+        return undefined;
+    }
+    if (result.ruleId) {
+        const driverRule = (tool.driver.rules || []).find((rule) => rule.id === result.ruleId);
+        if (driverRule) {
+            return driverRule;
+        }
+
+        const extensionRules = (tool.extensions || [])
+            .flatMap((extension) => extension.rules || [])
+            .filter((rule) => rule.id === result.ruleId);
+        return extensionRules.length === 1 ? extensionRules[0] : undefined;
+    }
+    if (Number.isInteger(result.ruleIndex)) {
+        return tool.driver.rules && tool.driver.rules[result.ruleIndex];
+    }
+
+    return undefined;
+}
+
 async function process(run) {
-    const ruleMap = new Map();
+    const triggeredRules = new Set();
 
     if (run && run.results) {
         for (const result of run.results) {
-            const ruleId = result.ruleId;
-            const seen = ruleMap.get(ruleId);
-            if (seen === undefined) {
-                ruleMap.set(ruleId, true);
+            const rule = resolveRule(run, result);
+            if (rule) {
+                triggeredRules.add(rule);
             }
         }
     }
 
-    return ruleMap;
+    return triggeredRules;
 }
 
 module.exports = {
@@ -7763,8 +7977,8 @@ const textObjectProcessor = __nccwpck_require__(295);
 const phraseSearcher = __nccwpck_require__(134);
 
 async function processRule(rule, languageKey, triggeredRules) {
-    if (!triggeredRules.has(rule.id)) {
-        throw new Error('Rule not triggered');
+    if (!triggeredRules.has(rule) && !triggeredRules.has(rule.id)) {
+        return;
     }
 
     let ruleText = '';
@@ -7794,11 +8008,15 @@ async function processRule(rule, languageKey, triggeredRules) {
     let matches = cweSearcher.search(ruleText);
     matches = matches.concat(phraseSearcher.search(ruleText));
     const alreadyAddedEntries = {};
-    let isShown = false;
+    const alreadyAddedTrainingUrls = helpProcessor.getTrainingUrls(rule.help);
+    let isShown = helpProcessor.hasTrainingHeader(rule.help);
     for (const match of matches) {
         const matchId = `${match.referenceType}::${match.referenceId}`;
         if (!alreadyAddedEntries[matchId]) {
             alreadyAddedEntries[matchId] = 1;
+            if (helpProcessor.hasTrainingEntry(rule.help, match.displayReference)) {
+                continue;
+            }
 
             // call Direct Linking API
             let trainingData;
@@ -7806,11 +8024,21 @@ async function processRule(rule, languageKey, triggeredRules) {
                 trainingData = await directLinking.getTrainingData(match.referenceType, match.referenceId, languageKey);
             }
             catch (e) {
-                console.error('Error', e);
-
-                trainingData = null;
+                console.warn(`Unable to load Secure Code Warrior training for ${match.displayReference}: ${e.message}`);
                 continue;
             }
+            if (!trainingData || !trainingData.url) {
+                console.warn(`Secure Code Warrior returned incomplete training data for ${match.displayReference}`);
+                continue;
+            }
+            const normalizedTrainingUrl = trainingData.url.replace(/ /g, '%20');
+
+            // CWE mappings are more precise than phrase matches, so suppress phrase
+            // entries that resolve to training already added for this rule.
+            if (match.referenceType === 'phrase' && alreadyAddedTrainingUrls.has(normalizedTrainingUrl)) {
+                continue;
+            }
+            alreadyAddedTrainingUrls.add(normalizedTrainingUrl);
 
             if (!rule.help) rule.help = {
                 // if `help` is not present but fullDescription is present
@@ -7826,20 +8054,21 @@ async function processRule(rule, languageKey, triggeredRules) {
                 helpProcessor.appendHeader(rule.help);
             }
 
-            helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, trainingData.url, trainingData.videos, match.displayReference);
+            helpProcessor.appendTrainingData(rule.help, trainingData.name, trainingData.description, normalizedTrainingUrl, trainingData.videos, match.displayReference);
         }
     }
 }
 
-async function processRun(run, languageKey, triggeredRules) {
-    if (run && run.tool && run.tool.driver && run.tool.driver.rules) {
+async function processRun(run, languageKey, triggeredRules, options = {}) {
+    if (run && run.tool && run.tool.driver) {
         // PLAT-15858 Update to handle trimming and case-insensitive matches
-        if (run.tool.driver.name && run.tool.driver.name.trim().toLowerCase() === 'codeql') {            // workaround for help text being overwritten by CodeQL template when GitHub detects CodeQL
+        if (options.renameCodeQLTool && run.tool.driver.name && run.tool.driver.name.trim().toLowerCase() === 'codeql') {
+            // Compatibility workaround for https://github.com/github/codeql-action/issues/305
             // ref: https://github.com/github/codeql-action/issues/305
             run.tool.driver.name = 'GitHub CodeQL';
         }
 
-        for (const rule of run.tool.driver.rules) {
+        for (const rule of run.tool.driver.rules || []) {
             try {
                 await processRule(rule, languageKey, triggeredRules);
             }
@@ -16382,14 +16611,22 @@ const { run } = __nccwpck_require__(7256);
 async function start() {
     const inFile = core.getInput('inputSarifFile');
     const outFile = core.getInput('outputSarifFile');
+    const languageKey = core.getInput('languageKey') || null;
+    const renameCodeQLTool = core.getBooleanInput('renameCodeQLTool');
 
     logger.setLogger((msg) => core.debug(msg));
     const onFailure = (message) => core.setFailed(message);
 
-    run(inFile, outFile, null, onFailure);
+    await run(inFile, outFile, languageKey, onFailure, {
+        renameCodeQLTool
+    });
 }
 
-start();
+start().catch((error) => {
+    if (!process.exitCode) {
+        core.setFailed(error.message);
+    }
+});
 
 })();
 

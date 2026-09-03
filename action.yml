@@ -13,6 +13,14 @@ inputs:
     description: 'Relative destination location for processed SARIF file(s)'
     required: true
     default: './findings.processed.sarif'
+  languageKey:
+    description: 'Optional Secure Code Warrior language and framework key'
+    required: false
+    default: ''
+  renameCodeQLTool:
+    description: 'Rename the CodeQL tool to GitHub CodeQL for compatibility with older code scanning behavior'
+    required: false
+    default: 'false'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'

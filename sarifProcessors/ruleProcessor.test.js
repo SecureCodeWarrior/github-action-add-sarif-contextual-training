@@ -1,12 +1,15 @@
 "use strict";
 
-const fs = require('fs');
-
 const directLinking = require('../directLinking');
+const resultProcessor = require('./resultProcessor');
 const ruleProcessor = require('./ruleProcessor');
 const sarifLoader = require('../sarifLoader');
 
 jest.mock('../directLinking');
+
+beforeEach(() => {
+    directLinking.getTrainingData.mockReset();
+});
 
 test('ruleProcessor should load test001 and not add anything', async () => {
     const sarifs = await sarifLoader.load('./fixtures/test001.sarif');
@@ -191,7 +194,7 @@ test('ruleProcessor should load test004 and add 4 entries based on the rule id, 
     }
 });
 
-test('ruleProcessor should load test005 and add 6 entries based on the rule id, rule name, short description, full description and tags (x2)', async () => {
+test('ruleProcessor should add CWE entries and suppress phrase matches that resolve to the same training', async () => {
     const sarifs = await sarifLoader.load('./fixtures/test005.sarif');
     const NAME = 'AAA';
     const DESCRIPTION = 'bbb';
@@ -225,8 +228,8 @@ test('ruleProcessor should load test005 and add 6 entries based on the rule id, 
                 "text": "There is a use-after-free vulnerability in there somewhere too"
             },
             "help": {
-                "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 22] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 23] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 24] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "SQL injection"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "use-after-free"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[Matched on "ssrF"] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
-                "markdown": `markdown version some link [here](https://github.com)\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 22] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 23] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 24] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "SQL injection"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "use-after-free"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [Matched on "ssrF"] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
+                "text": `some help text\n\nBuild your secure coding skills and defend your code:\n\n[CWE 22] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 23] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n[CWE 24] ${NAME} [What is this? (2min video)](${VIDEOS[0]})\n\n${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`,
+                "markdown": `markdown version some link [here](https://github.com)\n\n## Build your secure coding skills and defend your code\n\n#### [CWE 22] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 23] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})\n\n#### [CWE 24] ${NAME} *[What is this? (2min video)](${VIDEOS[0]})*\n\n* ${DESCRIPTION} [Try this challenge in Secure Code Warrior](${URL})`
             },
             "properties": {
                 "tags": [
@@ -397,10 +400,8 @@ test('ruleProcessor should load test006 and appropriately handle missing help ob
     }
 });
 
-test('ruleProcessor should handle extension rules as well as rename CodeQL to GitHub CodeQL - load codeql-extension-rules.sarif and output should match codeql-extension-rules-output.sarif', async () => {
+test('ruleProcessor should handle extension rules and preserve the CodeQL tool name by default', async () => {
     const sarifs = await sarifLoader.load('./fixtures/codeql-extension-rules.sarif');
-    const expectedSarif = JSON.parse(fs.readFileSync('./fixtures/codeql-extension-rules-output.sarif', { encoding: 'utf8' }));
-    const jsonExpected = JSON.stringify(expectedSarif, null, 2);
     const NAME = 'AAA';
     const DESCRIPTION = 'bbb';
     const URL = 'ccc';
@@ -418,16 +419,16 @@ test('ruleProcessor should handle extension rules as well as rename CodeQL to Gi
             ['py/command-line-injection', true]
         ]));
 
-        // expect material added to help.text and help.markdown
-        expect(jsonExpected).toEqual(JSON.stringify(sarif, null, 2));
-
-        // expect tool driver name to be renamed from CodeQL to GitHub CodeQL
-        // workaround for https://github.com/github/codeql-action/issues/305
-        expect(sarif.runs[0].tool.driver.name).toEqual('GitHub CodeQL');
+        expect(sarif.runs[0].tool.driver.name).toEqual('CodeQL');
+        for (const rule of sarif.runs[0].tool.extensions[0].rules) {
+            expect(rule.help.text).toContain('Build your secure coding skills and defend your code:');
+            expect(rule.help.markdown).toContain('## Build your secure coding skills and defend your code');
+            expect(rule.help.markdown).not.toContain('Matched on');
+        }
     }
 });
 
-describe('processRun - Tool Driver Name overwrite', () => {
+describe('processRun - CodeQL tool name compatibility', () => {
 
     function createRunWithName(name) {
         return {
@@ -440,63 +441,183 @@ describe('processRun - Tool Driver Name overwrite', () => {
         };
     }
 
-    test('Name exactly "CodeQL" should be overwritten', async () => {
-        const run = createRunWithName('CodeQL');
+    test.each([
+        'CodeQL',
+        'codeql',
+        'CODEQL',
+        'CoDeQl',
+        ' CodeQL '
+    ])('preserves "%s" by default', async (name) => {
+        const run = createRunWithName(name);
         await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('GitHub CodeQL');
+        expect(run.tool.driver.name).toBe(name);
     });
 
-    test('Name "codeql" lowercase does get overwritten (current function)', async () => {
-        const run = createRunWithName('codeql');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('GitHub CodeQL');
-    });
-
-    test('Name "CODEQL" uppercase does get overwritten (current function)', async () => {
-        const run = createRunWithName('CODEQL');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('GitHub CodeQL');
-    });
-
-    test('Name "CoDeQl" mixed case does get overwritten (current function)', async () => {
-        const run = createRunWithName('CoDeQl');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('GitHub CodeQL');
-    });
-
-    test('Name with spaces " CodeQL " does get overwritten (current function)', async () => {
-        const run = createRunWithName(' CodeQL ');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('GitHub CodeQL');
-    });
-
-    test('Name "codeql" lowercase gets overwritten (with trimmed + lowercase check)', async () => {
+    test('renames CodeQL when compatibility behavior is enabled', async () => {
         const run = createRunWithName('  codeql  ');
-        await ruleProcessor.processRun(run, '', new Set());
+        await ruleProcessor.processRun(run, '', new Set(), {
+            renameCodeQLTool: true
+        });
         expect(run.tool.driver.name).toBe('GitHub CodeQL');
     });
 
-    test('Other name "SonarQube" does not get overwritten', async () => {
-        const run = createRunWithName('SonarQube');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('SonarQube');
+    test.each([
+        'SonarQube',
+        'CodeQL Pro',
+        '',
+        null
+    ])('does not rename the unrelated name "%s"', async (name) => {
+        const run = createRunWithName(name);
+        await ruleProcessor.processRun(run, '', new Set(), {
+            renameCodeQLTool: true
+        });
+        expect(run.tool.driver.name).toBe(name);
+    });
+});
+
+test('ruleProcessor should not add duplicate training when SARIF is processed twice', async () => {
+    const sarifs = await sarifLoader.load('./fixtures/test003.sarif');
+    directLinking.getTrainingData.mockResolvedValue({
+        name: 'AAA',
+        description: 'bbb',
+        url: 'ccc',
+        videos: []
     });
 
-    test('Empty name "" does not get overwritten', async () => {
-        const run = createRunWithName('');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('');
+    for (const sarif of sarifs) {
+        const triggeredRules = new Map([
+            ['TEST01 CWE-22', true]
+        ]);
+        await ruleProcessor.processRun(sarif.runs[0], 'java', triggeredRules);
+        await ruleProcessor.processRun(sarif.runs[0], 'java', triggeredRules);
+
+        const help = sarif.runs[0].tool.driver.rules[0].help;
+        expect(help.text.match(/Build your secure coding skills and defend your code:/g)).toHaveLength(1);
+        expect(help.markdown.match(/## Build your secure coding skills and defend your code/g)).toHaveLength(1);
+        expect(directLinking.getTrainingData).toHaveBeenCalledTimes(2);
+    }
+});
+
+test('ruleProcessor should keep processing when training lookup fails', async () => {
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const sarifs = await sarifLoader.load('./fixtures/test003.sarif');
+    directLinking.getTrainingData.mockRejectedValue(new Error('API unavailable'));
+
+    for (const sarif of sarifs) {
+        await expect(ruleProcessor.processRun(sarif.runs[0], 'java', new Map([
+            ['TEST01 CWE-22', true]
+        ]))).resolves.toBeUndefined();
+
+        expect(sarif.runs[0].tool.driver.rules[0].help).toEqual({
+            text: 'some help text',
+            markdown: 'markdown version some link [here](https://github.com)'
+        });
+    }
+
+    warning.mockRestore();
+});
+
+test('ruleProcessor should recover missing entries after a partial failure', async () => {
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const sarifs = await sarifLoader.load('./fixtures/test003.sarif');
+    directLinking.getTrainingData
+        .mockResolvedValueOnce({
+            name: 'Path traversal',
+            description: 'bbb',
+            url: 'https://scw.io/cwe-22',
+            videos: []
+        })
+        .mockRejectedValueOnce(new Error('API unavailable'));
+
+    for (const sarif of sarifs) {
+        const triggeredRules = new Map([
+            ['TEST01 CWE-22', true]
+        ]);
+        await ruleProcessor.processRun(sarif.runs[0], 'java', triggeredRules);
+
+        directLinking.getTrainingData.mockResolvedValue({
+            name: 'Relative path traversal',
+            description: 'bbb',
+            url: 'https://scw.io/cwe-23',
+            videos: []
+        });
+        await ruleProcessor.processRun(sarif.runs[0], 'java', triggeredRules);
+
+        const help = sarif.runs[0].tool.driver.rules[0].help;
+        expect(help.markdown).toContain('#### [CWE 22]');
+        expect(help.markdown).toContain('#### [CWE 23]');
+        expect(help.markdown.match(/## Build your secure coding skills and defend your code/g)).toHaveLength(1);
+    }
+
+    warning.mockRestore();
+});
+
+test('ruleProcessor should normalize URLs before suppressing duplicate phrase entries', async () => {
+    const run = {
+        tool: {
+            driver: {
+                name: 'Example SAST',
+                rules: [{
+                    id: 'CWE-79 SQL injection',
+                    help: {
+                        text: 'Build your secure coding skills and defend your code:\n\n[CWE 79] Existing training [Try this challenge in Secure Code Warrior](https://scw.io/path%20traversal)',
+                        markdown: '## Build your secure coding skills and defend your code\n\n#### [CWE 79] Existing training\n\n[Try this challenge in Secure Code Warrior](https://scw.io/path%20traversal)'
+                    }
+                }]
+            }
+        }
+    };
+    directLinking.getTrainingData.mockResolvedValue({
+        name: 'Path traversal',
+        description: 'bbb',
+        url: 'https://scw.io/path traversal',
+        videos: []
     });
 
-    test('Null name does not throw and remains null', async () => {
-        const run = createRunWithName(null);
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBeNull();
+    await ruleProcessor.processRun(run, null, new Map([
+        ['CWE-79 SQL injection', true]
+    ]));
+
+    expect(run.tool.driver.rules[0].help.markdown).not.toContain('Matched on');
+    expect(directLinking.getTrainingData).toHaveBeenCalledTimes(1);
+});
+
+test('ruleProcessor should enrich only the referenced component when rule IDs collide', async () => {
+    const run = {
+        tool: {
+            driver: {
+                name: 'Example SAST',
+                rules: [{
+                    id: 'CWE-79'
+                }]
+            },
+            extensions: [{
+                rules: [{
+                    id: 'CWE-79'
+                }]
+            }]
+        },
+        results: [{
+            ruleId: 'CWE-79',
+            rule: {
+                id: 'CWE-79',
+                index: 0,
+                toolComponent: {
+                    index: 0
+                }
+            }
+        }]
+    };
+    directLinking.getTrainingData.mockResolvedValue({
+        name: 'AAA',
+        description: 'bbb',
+        url: 'ccc',
+        videos: []
     });
 
-    test('Name is a substring "CodeQL Pro" does not get overwritten', async () => {
-        const run = createRunWithName('CodeQL Pro');
-        await ruleProcessor.processRun(run, '', new Set());
-        expect(run.tool.driver.name).toBe('CodeQL Pro');
-    });
+    const triggeredRules = await resultProcessor.process(run);
+    await ruleProcessor.processRun(run, null, triggeredRules);
+
+    expect(run.tool.driver.rules[0].help).toBeUndefined();
+    expect(run.tool.extensions[0].rules[0].help.markdown).toContain('Secure Code Warrior');
 });

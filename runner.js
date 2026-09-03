@@ -10,15 +10,10 @@ const logger = require('./logger');
 const OUTPUT_DIR = 'processed-sarifs';
 
 async function writeOutputFile(outFilename, data) {
-    try {
-        await fs.writeFile(outFilename, data, 'utf8');
-    }
-    catch (e) {
-        console.error(`Error writing file: ${outFilename}`, e);
-    }
+    await fs.writeFile(outFilename, data, 'utf8');
 }
 
-async function run(inFile, outFile, languageKey, onFailure) {
+async function run(inFile, outFile, languageKey, onFailure, options = {}) {
     try {
         const pathType = await sarifLoader.getPathType(inFile);
         let fileCount = 1;
@@ -44,7 +39,7 @@ async function run(inFile, outFile, languageKey, onFailure) {
                     const triggeredRules = await resultProcessor.process(run, languageKey);
                     
                     // process run for rules
-                    await ruleProcessor.processRun(run, languageKey, triggeredRules);
+                    await ruleProcessor.processRun(run, languageKey, triggeredRules, options);
                 }
             }
 

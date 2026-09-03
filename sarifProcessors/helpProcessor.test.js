@@ -74,3 +74,37 @@ test('helpProcessor should append header to both text and markdown if both are p
         text: `existing text\n\nBuild your secure coding skills and defend your code:`
     });
 });
+
+test('helpProcessor should detect existing training headers', async () => {
+    expect(helpProcessor.hasTrainingHeader({
+        text: 'Build your secure coding skills and defend your code:'
+    })).toEqual(true);
+    expect(helpProcessor.hasTrainingHeader({
+        markdown: '## Build your secure coding skills and defend your code'
+    })).toEqual(true);
+    expect(helpProcessor.hasTrainingHeader({
+        text: 'Unrelated help text'
+    })).toEqual(false);
+});
+
+test('helpProcessor should detect individual entries and training URLs', async () => {
+    const helpObj = {
+        markdown: '#### [CWE 79] XSS\n\n[Try this challenge in Secure Code Warrior](https://scw.io/xss)'
+    };
+
+    expect(helpProcessor.hasTrainingEntry(helpObj, 'CWE 79')).toEqual(true);
+    expect(helpProcessor.hasTrainingEntry(helpObj, 'CWE 89')).toEqual(false);
+    expect(helpProcessor.getTrainingUrls(helpObj)).toEqual(new Set([
+        'https://scw.io/xss'
+    ]));
+});
+
+test('helpProcessor should not mutate video URLs', async () => {
+    const videos = ['https://scw.io/video with spaces'];
+    const helpObj = {};
+
+    helpProcessor.appendTrainingData(helpObj, NAME, DESCRIPTION, URL, videos, DISPLAY_REF);
+
+    expect(videos).toEqual(['https://scw.io/video with spaces']);
+    expect(helpObj.markdown).toContain('https://scw.io/video%20with%20spaces');
+});
